@@ -1,336 +1,174 @@
--- ZERO HUB - Script Completo para Blox Fruits
--- Creado especialmente para Delta Executor
-
+-- Sistema de Auto Farm Mejorado para ZEIRO HUB
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-
 local Player = Players.LocalPlayer
-local Mouse = Player:GetMouse()
+local Character = Player.Character
+local Humanoid = Character:WaitForChild("Humanoid")
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
--- Crear interfaz ZERO HUB
-local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local TabButtons = Instance.new("Frame")
-local ContentFrame = Instance.new("Frame")
-local UIGradient = Instance.new("UIGradient")
-local Title = Instance.new("TextLabel")
-
-ScreenGui.Parent = game.CoreGui
-ScreenGui.Name = "ZERO_HUB"
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-MainFrame.Name = "MainFrame"
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-MainFrame.BorderSizePixel = 0
-MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
-MainFrame.Size = UDim2.new(0, 500, 0, 350)
-MainFrame.Active = true
-MainFrame.Draggable = true
-
-UIGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 35)),
-    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 25))
-}
-UIGradient.Parent = MainFrame
-
-Title.Name = "Title"
-Title.Parent = MainFrame
-Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Title.BackgroundTransparency = 1.000
-Title.Position = UDim2.new(0, 0, 0, 0)
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Font = Enum.Font.GothamBold
-Title.Text = "ZERO HUB v2.0 | Blox Fruits"
-Title.TextColor3 = Color3.fromRGB(0, 255, 255)
-Title.TextSize = 16.000
-
-TabButtons.Name = "TabButtons"
-TabButtons.Parent = MainFrame
-TabButtons.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-TabButtons.BorderSizePixel = 0
-TabButtons.Position = UDim2.new(0, 0, 0, 30)
-TabButtons.Size = UDim2.new(0, 120, 0, 320)
-
-ContentFrame.Name = "ContentFrame"
-ContentFrame.Parent = MainFrame
-ContentFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-ContentFrame.BorderSizePixel = 0
-ContentFrame.Position = UDim2.new(0, 120, 0, 30)
-ContentFrame.Size = UDim2.new(0, 380, 0, 320)
-
--- Función para crear botones
-function CreateButton(parent, text, position, callback)
-    local Button = Instance.new("TextButton")
-    Button.Parent = parent
-    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    Button.BorderSizePixel = 0
-    Button.Position = position
-    Button.Size = UDim2.new(0, 160, 0, 30)
-    Button.Font = Enum.Font.Gotham
-    Button.Text = text
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.TextSize = 12.000
-    
-    Button.MouseButton1Click:Connect(callback)
-    
-    return Button
-end
-
--- Función para crear toggles
-function CreateToggle(parent, text, position, callback)
-    local ToggleFrame = Instance.new("Frame")
-    local ToggleButton = Instance.new("TextButton")
-    local ToggleStatus = Instance.new("TextLabel")
-    
-    ToggleFrame.Parent = parent
-    ToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    ToggleFrame.BorderSizePixel = 0
-    ToggleFrame.Position = position
-    ToggleFrame.Size = UDim2.new(0, 160, 0, 25)
-    
-    ToggleButton.Parent = ToggleFrame
-    ToggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
-    ToggleButton.BorderSizePixel = 0
-    ToggleButton.Position = UDim2.new(0, 5, 0, 2)
-    ToggleButton.Size = UDim2.new(0, 60, 0, 21)
-    ToggleButton.Font = Enum.Font.Gotham
-    ToggleButton.Text = "OFF"
-    ToggleButton.TextColor3 = Color3.fromRGB(255, 100, 100)
-    ToggleButton.TextSize = 11.000
-    
-    ToggleStatus.Parent = ToggleFrame
-    ToggleStatus.BackgroundTransparency = 1
-    ToggleStatus.Position = UDim2.new(0, 70, 0, 0)
-    ToggleStatus.Size = UDim2.new(0, 85, 0, 25)
-    ToggleStatus.Font = Enum.Font.Gotham
-    ToggleStatus.Text = text
-    ToggleStatus.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ToggleStatus.TextSize = 11.000
-    ToggleStatus.TextXAlignment = Enum.TextXAlignment.Left
-    
-    local isToggled = false
-    
-    ToggleButton.MouseButton1Click:Connect(function()
-        isToggled = not isToggled
-        if isToggled then
-            ToggleButton.Text = "ON"
-            ToggleButton.TextColor3 = Color3.fromRGB(100, 255, 100)
-            ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 80, 40)
-        else
-            ToggleButton.Text = "OFF"
-            ToggleButton.TextColor3 = Color3.fromRGB(255, 100, 100)
-            ToggleButton.BackgroundColor3 = Color3.fromRGB(80, 40, 40)
-        end
-        callback(isToggled)
-    end)
-    
-    return ToggleFrame
-end
-
--- Sistema de Tabs
-local Tabs = {}
-local CurrentTab = ""
-
-function CreateTab(name)
-    local TabButton = Instance.new("TextButton")
-    TabButton.Parent = TabButtons
-    TabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    TabButton.BorderSizePixel = 0
-    TabButton.Size = UDim2.new(1, 0, 0, 30)
-    TabButton.Font = Enum.Font.Gotham
-    TabButton.Text = name
-    TabButton.TextColor3 = Color3.fromRGB(200, 200, 200)
-    TabButton.TextSize = 12.000
-    
-    local TabContent = Instance.new("ScrollingFrame")
-    TabContent.Parent = ContentFrame
-    TabContent.BackgroundTransparency = 1
-    TabContent.Size = UDim2.new(1, 0, 1, 0)
-    TabContent.ScrollBarThickness = 4
-    TabContent.Visible = false
-    
-    Tabs[name] = TabContent
-    
-    TabButton.MouseButton1Click:Connect(function()
-        for tabName, tabContent in pairs(Tabs) do
-            tabContent.Visible = false
-        end
-        Tabs[name].Visible = true
-        CurrentTab = name
-    end)
-    
-    return TabContent
-end
-
--- Crear tabs principales
-local FarmingTab = CreateTab("⚡ Farming")
-local TeleportTab = CreateTab("📍 Teleports")
-local PlayerTab = CreateTab("👤 Player")
-local MiscTab = CreateTab("🔧 Misc")
-
--- Mostrar primer tab por defecto
-Tabs["⚡ Farming"].Visible = true
-CurrentTab = "⚡ Farming"
-
--- ========== SISTEMA DE FARMING ==========
-local AutoFarmEnabled = false
-local AutoBusoEnabled = false
-
-CreateToggle(FarmingTab, "Auto Farm", UDim2.new(0, 10, 0, 10), function(state)
-    AutoFarmEnabled = state
-    if state then
-        spawn(function()
-            while AutoFarmEnabled and wait(0.5) do
-                pcall(function()
-                    -- Lógica simple de auto farm
-                    local enemies = workspace:FindFirstChild("Enemies")
-                    if enemies then
-                        for _, enemy in pairs(enemies:GetChildren()) do
-                            if AutoFarmEnabled and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
-                                Player.Character:SetPrimaryPartCFrame(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 0, -8))
-                                wait(0.3)
-                                -- Simular ataque
-                                for _, tool in pairs(Player.Character:GetChildren()) do
-                                    if tool:IsA("Tool") then
-                                        tool:Activate()
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end)
-            end
-        end)
-    end
-end)
-
-CreateToggle(FarmingTab, "Auto Buso Haki", UDim2.new(0, 10, 0, 40), function(state)
-    AutoBusoEnabled = state
-    if state then
-        spawn(function()
-            while AutoBusoEnabled and wait(10) do
-                pcall(function()
-                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
-                end)
-            end
-        end)
-    end
-end)
-
-CreateToggle(FarmingTab, "Auto Click", UDim2.new(0, 10, 0, 70), function(state)
-    getgenv().AutoClick = state
-    if state then
-        spawn(function()
-            while getgenv().AutoClick and wait(0.1) do
-                pcall(function()
-                    mouse1click()
-                end)
-            end
-        end)
-    end
-end)
-
--- ========== SISTEMA DE TELEPORTS ==========
-local Islands = {
-    {"Pirate Starter", CFrame.new(1099, 49, 1555)},
-    {"Marine Starter", CFrame.new(-2828, 49, 2093)},
-    {"Jungle", CFrame.new(-1500, 70, -200)},
-    {"Pirate Village", CFrame.new(-1150, 50, 3850)},
-    {"Desert", CFrame.new(950, 50, 4100)},
-    {"Frozen Village", CFrame.new(1150, 150, -1250)},
-    {"Marine Fortress", CFrame.new(-4850, 331, -360)},
-    {"Skylands", CFrame.new(-500, 450, -200)},
-    {"Prison", CFrame.new(4900, 50, 500)}
+-- Configuración
+local Config = {
+    FarmingRange = 50, -- Rango de detección de enemigos
+    AttackDelay = 0.1, -- Delay entre ataques
+    TeleportOffset = CFrame.new(0, 0, -6), -- Distancia de teleport
+    PriorityTargets = { -- Lista de objetivos prioritarios
+        "Boss",
+        "Elite",
+        "Normal"
+    },
+    AutoCollectDrops = true,
+    SafeMode = true -- Modo seguro (evita detección)
 }
 
-for i, island in pairs(Islands) do
-    CreateButton(TeleportTab, island[1], UDim2.new(0, 10, 0, 10 + ((i-1) * 35)), function()
+-- Sistema de detección de enemigos mejorado
+local function GetNearestEnemy()
+    local nearestEnemy = nil
+    local shortestDistance = Config.FarmingRange
+    
+    local enemies = workspace:FindFirstChild("Enemies")
+    if not enemies then return nil end
+    
+    for _, enemy in pairs(enemies:GetChildren()) do
+        if enemy:FindFirstChild("Humanoid") and enemy:FindFirstChild("HumanoidRootPart") then
+            if enemy.Humanoid.Health > 0 then
+                -- Verificar tipo de enemigo para prioridad
+                local enemyType = enemy:GetAttribute("EnemyType") or "Normal"
+                local priority = table.find(Config.PriorityTargets, enemyType) or #Config.PriorityTargets + 1
+                
+                local distance = (enemy.HumanoidRootPart.Position - HumanoidRootPart.Position).Magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    nearestEnemy = enemy
+                end
+            end
+        end
+    end
+    
+    return nearestEnemy
+end
+
+-- Sistema de teleport optimizado
+local function TeleportToEnemy(enemy)
+    if Config.SafeMode then
+        -- Teleport suave para evitar detección
+        local targetCFrame = enemy.HumanoidRootPart.CFrame * Config.TeleportOffset
+        local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Linear)
+        local tween = game:GetService("TweenService"):Create(HumanoidRootPart, tweenInfo, {CFrame = targetCFrame})
+        tween:Play()
+        tween.Completed:Wait()
+    else
+        -- Teleport instantáneo
+        HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * Config.TeleportOffset
+    end
+end
+
+-- Sistema de ataque mejorado
+local function Attack()
+    -- Simular clicks y habilidades
+    mouse1click()
+    
+    -- Usar habilidades disponibles
+    for _, tool in pairs(Character:GetChildren()) do
+        if tool:IsA("Tool") then
+            tool:Activate()
+            if Config.SafeMode then
+                wait(Config.AttackDelay)
+            end
+        end
+    end
+end
+
+-- Sistema de recolección de drops
+local function CollectDrops()
+    if not Config.AutoCollectDrops then return end
+    
+    local drops = workspace:FindFirstChild("Drops")
+    if drops then
+        for _, drop in pairs(drops:GetChildren()) do
+            if drop:IsA("BasePart") then
+                drop.CFrame = HumanoidRootPart.CFrame
+            end
+        end
+    end
+end
+
+-- Auto Buso Haki mejorado
+local function AutoBuso()
+    while wait(5) do
         pcall(function()
-            Player.Character:SetPrimaryPartCFrame(island[2])
-            game:GetService("StarterGui"):SetCore("SendNotification",{
-                Title = "ZERO HUB",
-                Text = "Teleport: " .. island[1],
-                Duration = 3
-            })
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
         end)
-    end)
+    end
 end
 
--- ========== MODIFICACIONES DE PLAYER ==========
-CreateButton(PlayerTab, "Walkspeed +50", UDim2.new(0, 10, 0, 10), function()
-    pcall(function()
-        Player.Character.Humanoid.WalkSpeed = 50
-    end)
-end)
-
-CreateButton(PlayerTab, "JumpPower +100", UDim2.new(0, 10, 0, 50), function()
-    pcall(function()
-        Player.Character.Humanoid.JumpPower = 100
-    end)
-end)
-
-local NoclipEnabled = false
-CreateToggle(PlayerTab, "Noclip", UDim2.new(0, 10, 0, 90), function(state)
-    NoclipEnabled = state
-    if state then
-        spawn(function()
-            while NoclipEnabled and wait() do
-                pcall(function()
-                    for _, part in pairs(Player.Character:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            part.CanCollide = false
-                        end
-                    end
-                end)
+-- Función principal de farming
+local function StartAutoFarm()
+    spawn(AutoBuso) -- Iniciar Buso Haki
+    
+    while wait() do
+        if not getgenv().AutoFarmEnabled then break end
+        
+        pcall(function()
+            local target = GetNearestEnemy()
+            if target then
+                TeleportToEnemy(target)
+                Attack()
+                CollectDrops()
             end
         end)
     end
-end)
+end
 
--- ========== MISCELÁNEOS ==========
-CreateButton(MiscTab, "Rejoin Server", UDim2.new(0, 10, 0, 10), function()
-    game:GetService("TeleportService"):Teleport(game.PlaceId, Player)
-end)
-
-CreateButton(MiscTab, "Server Hop", UDim2.new(0, 10, 0, 50), function()
-    -- Lógica simple para cambiar de servidor
-    game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId)
-end)
-
-CreateButton(MiscTab, "Anti AFK", UDim2.new(0, 10, 0, 90), function()
-    local VirtualUser = game:GetService("VirtualUser")
-    Player.Idled:connect(function()
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new())
+-- Interfaz mejorada
+local function CreateFarmingInterface()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Parent = game.CoreGui
+    
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Size = UDim2.new(0, 200, 0, 100)
+    MainFrame.Position = UDim2.new(0.8, 0, 0.5, 0)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Parent = ScreenGui
+    
+    local StatusLabel = Instance.new("TextLabel")
+    StatusLabel.Size = UDim2.new(1, 0, 0, 30)
+    StatusLabel.Position = UDim2.new(0, 0, 0, 0)
+    StatusLabel.BackgroundTransparency = 1
+    StatusLabel.Text = "Estado: Inactivo"
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    StatusLabel.Parent = MainFrame
+    
+    -- Actualizar estado
+    spawn(function()
+        while wait(1) do
+            if getgenv().AutoFarmEnabled then
+                StatusLabel.Text = "Estado: Farming Activo"
+                StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+            else
+                StatusLabel.Text = "Estado: Inactivo"
+                StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+            end
+        end
     end)
-    game:GetService("StarterGui"):SetCore("SendNotification",{
-        Title = "ZERO HUB",
-        Text = "Anti AFK Activado",
-        Duration = 3
-    })
-end)
+end
 
--- ========== INICIALIZACIÓN ==========
-game:GetService("StarterGui"):SetCore("SendNotification",{
-    Title = "ZERO HUB",
-    Text = "Cargado Exitosamente!",
+-- Inicializar
+CreateFarmingInterface()
+
+-- Comandos
+getgenv().StartFarming = function()
+    getgenv().AutoFarmEnabled = true
+    StartAutoFarm()
+end
+
+getgenv().StopFarming = function()
+    getgenv().AutoFarmEnabled = false
+end
+
+-- Notificar inicialización
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "ZEIRO HUB",
+    Text = "Auto Farm Mejorado Cargado!",
     Duration = 5
 })
-
-print("🎯 ZERO HUB v2.0 Cargado!")
-print("⚡ Farming System: Auto Farm, Auto Buso, Auto Click")
-print("📍 Teleports: " .. #Islands .. " Islas disponibles")
-print("👤 Player Mods: Walkspeed, JumpPower, Noclip")
-print("🔧 Utilities: Rejoin, Server Hop, Anti AFK")
-
--- Cerrar interfaz con tecla
-UserInputService.InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.RightControl then
-        ScreenGui.Enabled = not ScreenGui.Enabled
-    end
-end)
-
-warn("ZERO HUB: Presiona RightControl para mostrar/ocultar el menu")
