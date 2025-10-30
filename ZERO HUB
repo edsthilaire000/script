@@ -1,198 +1,283 @@
--- ZERO HUB - Sistema de Teleports Mejorado para First Sea
-local TeleportTab = Window:NewSection("Teleports - First Sea")
+-- ZERO HUB - Sistema Avanzado de Auto Quest para First Sea
+local QuestTab = Window:NewSection("Auto Quest System")
 
--- Tabla completa de islas con niveles y coordenadas
-local FirstSeaIslands = {
+-- Base de datos completa de NPCs y misiones
+local QuestNPCs = {
     {
-        Name = "🚩 Pirate Starter Island",
-        Level = "0+",
-        CFrame = CFrame.new(1099.00, 48.90, 1555.00),
-        Description = "Isla de spawn para piratas - Misiones muy fáciles"
+        Island = "Starter Island",
+        NPC = "Starter Quest Giver",
+        Level = "0-10",
+        Enemies = "Bandidos / Trainees",
+        CFrame = CFrame.new(1100, 50, 1550),
+        Type = "Starter"
     },
     {
-        Name = "⚓ Marine Starter Island", 
-        Level = "0+",
-        CFrame = CFrame.new(-2827.99, 48.90, 2093.20),
-        Description = "Isla de spawn para marines - Tutorial básico"
+        Island = "Jungle", 
+        NPC = "Adventurer",
+        Level = "15-30",
+        Enemies = "Monkeys, Gorillas, Gorilla King",
+        CFrame = CFrame.new(-1500, 70, -200),
+        Type = "Normal"
     },
     {
-        Name = "🌴 Jungle",
-        Level = "15+",
-        CFrame = CFrame.new(-1500.00, 70.00, -200.00),
-        Description = "Norte/NE desde starter islands - Monos/Gorilas"
+        Island = "Pirate Village",
+        NPC = "Pirate Adventurer", 
+        Level = "30-60",
+        Enemies = "Pirates, Brutes, Bobby (Boss)",
+        CFrame = CFrame.new(-1150, 50, 3850),
+        Type = "Normal"
     },
     {
-        Name = "🏴‍☠️ Pirate Village",
-        Level = "30+", 
-        CFrame = CFrame.new(-1150.00, 50.00, 3850.00),
-        Description = "Al noreste del Jungle - Misiones de piratas"
+        Island = "Desert",
+        NPC = "Desert Adventurer",
+        Level = "60-90", 
+        Enemies = "Desert Bandits, Desert Officers",
+        CFrame = CFrame.new(950, 50, 4100),
+        Type = "Normal"
     },
     {
-        Name = "🏜️ Desert",
-        Level = "60+",
-        CFrame = CFrame.new(950.00, 50.00, 4100.00),
-        Description = "Este de Pirate Village - Cactus y enemigos desérticos"
+        Island = "Frozen Village",
+        NPC = "Villager",
+        Level = "90-120",
+        Enemies = "Snow Bandits, Yeti",
+        CFrame = CFrame.new(1150, 150, -1250),
+        Type = "Normal"
     },
     {
-        Name = "🏔️ Frozen Village",
-        Level = "90+",
-        CFrame = CFrame.new(1150.00, 150.00, -1250.00),
-        Description = "Al norte/centro - Yeti como boss"
+        Island = "Marine Fortress", 
+        NPC = "Vice Admiral's Assistant",
+        Level = "120-150",
+        Enemies = "Chief Petty Officers, Vice Admiral",
+        CFrame = CFrame.new(-4850, 331, -360),
+        Type = "Normal"
     },
     {
-        Name = "🏰 Marine Fortress",
-        Level = "120+",
-        CFrame = CFrame.new(-4850.00, 331.00, -360.00),
-        Description = "Norte del Frozen Village - Oficiales marines"
+        Island = "Skylands (Lower)",
+        NPC = "Sky Adventurer",
+        Level = "150-190",
+        Enemies = "Sky Bandits, Dark Masters", 
+        CFrame = CFrame.new(-500, 450, -200),
+        Type = "Normal"
     },
     {
-        Name = "☁️ Skylands (Lower)",
-        Level = "150+",
-        CFrame = CFrame.new(-500.00, 450.00, -200.00),
-        Description = "Islas flotantes - Enemigos aéreos"
-    },
-    {
-        Name = "⚡ Skylands (Upper)",
-        Level = "175+", 
-        CFrame = CFrame.new(-800.00, 850.00, -100.00),
-        Description = "Zona superior de Skylands"
-    },
-    {
-        Name = "🌋 Magma Village",
-        Level = "200+",
-        CFrame = CFrame.new(-5500.00, 80.00, -1500.00),
-        Description = "Zona volcánica - Enemigos de magma"
-    },
-    {
-        Name = "⛲ Fountain City",
-        Level = "30+",
-        CFrame = CFrame.new(5000.00, 50.00, 700.00),
-        Description = "Ubicación central - NPCs importantes"
-    },
-    {
-        Name = "🏙️ Middle Town",
-        Level = "100+",
-        CFrame = CFrame.new(-650.00, 50.00, 1550.00),
-        Description = "Isla central - Boss Saw"
-    },
-    {
-        Name = "🔒 Prison",
+        Island = "Prison",
+        NPC = "Warden",
         Level = "190-250",
-        CFrame = CFrame.new(4900.00, 50.00, 500.00),
-        Description = "Isla prisión - Desbloquea Second Sea"
+        Enemies = "Prisoners, Chief Warden, Warden",
+        CFrame = CFrame.new(4900, 50, 500),
+        Type = "Boss"
     },
     {
-        Name = "⚔️ Colosseum",
-        Level = "Varía",
-        CFrame = CFrame.new(-1800.00, 50.00, -2200.00),
-        Description = "Área de combate especial - PvP"
+        Island = "Colosseum",
+        NPC = "Arena Trainer", 
+        Level = "250-300",
+        Enemies = "Gladiators",
+        CFrame = CFrame.new(-1800, 50, -2200),
+        Type = "Arena"
     },
     {
-        Name = "🌊 Underwater City",
-        Level = "Varía",
-        CFrame = CFrame.new(3500.00, -200.00, 1000.00),
-        Description = "Ciudad submarina - NPCs únicos"
+        Island = "Magma Village",
+        NPC = "Military Soldier",
+        Level = "300+",
+        Enemies = "Military Soldiers, Vice Admiral",
+        CFrame = CFrame.new(-5500, 80, -1500),
+        Type = "Military"
+    },
+    {
+        Island = "Underwater City",
+        NPC = "Fishman Warrior",
+        Level = "375+", 
+        Enemies = "Fishman Warriors, Fishman Lords",
+        CFrame = CFrame.new(3500, -200, 1000),
+        Type = "Water"
+    },
+    {
+        Island = "Fountain City",
+        NPC = "Spy / Detective",
+        Level = "625+",
+        Enemies = "Galley Pirates, Galley Captains",
+        CFrame = CFrame.new(5000, 50, 700),
+        Type = "Special"
     }
 }
 
--- Crear botones de teleport organizados por nivel
-TeleportTab:CreateLabel("=== ISLAS DE INICIO ===")
-for _, island in pairs(FirstSeaIslands) do
-    if island.Level == "0+" then
-        TeleportTab:CreateButton(island.Name .. " [Lvl " .. island.Level .. "]", function()
-            TeleportPlayer(island)
-        end)
-    end
-end
+-- Variables globales para Auto Quest
+getgenv().AutoQuest = false
+getgenv().CurrentQuestNPC = nil
 
-TeleportTab:CreateLabel("=== ISLAS INTERMEDIAS ===")
-for _, island in pairs(FirstSeaIslands) do
-    local level = tonumber(island.Level:match("%d+"))
-    if level and level >= 15 and level <= 120 then
-        TeleportTab:CreateButton(island.Name .. " [Lvl " .. island.Level .. "]", function()
-            TeleportPlayer(island)
-        end)
-    end
-end
-
-TeleportTab:CreateLabel("=== ISLAS AVANZADAS ===")
-for _, island in pairs(FirstSeaIslands) do
-    local level = tonumber(island.Level:match("%d+"))
-    if level and level >= 150 or island.Level == "190-250" then
-        TeleportTab:CreateButton(island.Name .. " [Lvl " .. island.Level .. "]", function()
-            TeleportPlayer(island)
-        end)
-    end
-end
-
-TeleportTab:CreateLabel("=== ISLAS ESPECIALES ===")
-for _, island in pairs(FirstSeaIslands) do
-    if island.Level == "Varía" then
-        TeleportTab:CreateButton(island.Name .. " [Lvl " .. island.Level .. "]", function()
-            TeleportPlayer(island)
-        end)
-    end
-end
-
--- Función mejorada de teleport
-function TeleportPlayer(islandData)
-    local Player = game.Players.LocalPlayer
-    local Character = Player.Character
+-- Función para encontrar NPC más cercano según nivel del jugador
+function GetOptimalQuestNPC()
+    local playerLevel = game:GetService("Players").LocalPlayer.Data.Level.Value
     
-    if Character and Character:FindFirstChild("HumanoidRootPart") then
-        -- Notificación de teleport
-        game:GetService("StarterGui"):SetCore("SendNotification",{
-            Title = "ZERO HUB - Teleport",
-            Text = "Viajando a: " .. islandData.Name,
-            Duration = 3
-        })
+    for _, npcData in pairs(QuestNPCs) do
+        local minLevel = tonumber(npcData.Level:match("(%d+)"))
+        local maxLevel = tonumber(npcData.Level:match("%d+%-(%d+)")) or minLevel + 50
         
-        -- Efecto de teleportación suave
-        local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-        local tween = TweenService:Create(Character.HumanoidRootPart, tweenInfo, {CFrame = islandData.CFrame})
-        tween:Play()
-        
-        -- Mensaje en consola
-        print("📍 ZERO HUB: Teleportando a " .. islandData.Name)
-        print("📊 Nivel recomendado: " .. islandData.Level)
-        print("📝 " .. islandData.Description)
-    else
-        warn("❌ Error: No se encontró el Character del jugador")
+        if playerLevel >= minLevel and playerLevel <= maxLevel then
+            return npcData
+        end
     end
+    
+    -- Si no encuentra, devuelve el último disponible
+    return QuestNPCs[#QuestNPCs]
 end
 
--- Sistema de teleport automático por nivel
-TeleportTab:CreateDropdown("Teleport Auto por Nivel", {
-    "Nivel 0-14 (Starter Islands)",
-    "Nivel 15-29 (Jungle)", 
-    "Nivel 30-59 (Pirate Village)",
-    "Nivel 60-89 (Desert)",
-    "Nivel 90-119 (Frozen Village)",
-    "Nivel 120-149 (Marine Fortress)",
-    "Nivel 150+ (Skylands)",
-    "Nivel 200+ (Magma Village/Prison)"
-}, function(selected)
-    local targetIsland
+-- Sistema de Auto Quest inteligente
+QuestTab:CreateToggle("⚡ Auto Quest Inteligente", false, function(State)
+    getgenv().AutoQuest = State
     
-    if selected == "Nivel 0-14 (Starter Islands)" then
-        targetIsland = FirstSeaIslands[1] -- Pirate Starter
-    elseif selected == "Nivel 15-29 (Jungle)" then
-        targetIsland = FirstSeaIslands[3] -- Jungle
-    elseif selected == "Nivel 30-59 (Pirate Village)" then
-        targetIsland = FirstSeaIslands[4] -- Pirate Village
-    elseif selected == "Nivel 60-89 (Desert)" then
-        targetIsland = FirstSeaIslands[5] -- Desert
-    elseif selected == "Nivel 90-119 (Frozen Village)" then
-        targetIsland = FirstSeaIslands[6] -- Frozen Village
-    elseif selected == "Nivel 120-149 (Marine Fortress)" then
-        targetIsland = FirstSeaIslands[7] -- Marine Fortress
-    elseif selected == "Nivel 150+ (Skylands)" then
-        targetIsland = FirstSeaIslands[8] -- Skylands Lower
-    elseif selected == "Nivel 200+ (Magma Village/Prison)" then
-        targetIsland = FirstSeaIslands[10] -- Magma Village
-    end
-    
-    if targetIsland then
-        TeleportPlayer(targetIsland)
+    if State then
+        coroutine.wrap(function()
+            while getgenv().AutoQuest and wait(3) do
+                pcall(function()
+                    local optimalNPC = GetOptimalQuestNPC()
+                    getgenv().CurrentQuestNPC = optimalNPC
+                    
+                    -- Teleportar al NPC
+                    game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(optimalNPC.CFrame * CFrame.new(0, 0, -5))
+                    
+                    -- Notificación
+                    game:GetService("StarterGui"):SetCore("SendNotification",{
+                        Title = "🎯 AUTO QUEST",
+                        Text = optimalNPC.NPC .. " | Lvl " .. optimalNPC.Level,
+                        Duration = 5
+                    })
+                    
+                    -- Esperar y aceptar quest
+                    wait(2)
+                    -- Aquí iría la lógica para aceptar la quest automáticamente
+                    
+                    -- Buscar y farmear enemigos de la quest
+                    FarmQuestEnemies(optimalNPC.Enemies)
+                end)
+            end
+        end)()
     end
 end)
+
+-- Función para farmear enemigos de la quest
+function FarmQuestEnemies(enemyTypes)
+    -- Lógica mejorada para encontrar y farmear enemigos específicos
+    local enemies = workspace:FindFirstChild("Enemies")
+    if enemies then
+        for _, enemy in pairs(enemies:GetChildren()) do
+            if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                for _, enemyType in pairs(string.split(enemyTypes, ", ")) do
+                    if string.find(enemy.Name, enemyType) then
+                        -- Atacar enemigo
+                        game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 0, -8))
+                        wait(0.5)
+                        -- Activar armas
+                        for _, tool in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if tool:IsA("Tool") then
+                                tool:Activate()
+                            end
+                        end
+                        break
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Selector manual de NPC para quests
+local npcOptions = {}
+for _, npcData in pairs(QuestNPCs) do
+    table.insert(npcOptions, npcData.NPC .. " | " .. npcData.Level)
+end
+
+QuestTab:CreateDropdown("🎯 Seleccionar NPC Manual", npcOptions, function(selected)
+    for _, npcData in pairs(QuestNPCs) do
+        if npcData.NPC .. " | " .. npcData.Level == selected then
+            getgenv().CurrentQuestNPC = npcData
+            game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(npcData.CFrame * CFrame.new(0, 0, -5))
+            
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "🎯 TELEPORT NPC",
+                Text = npcData.NPC .. " - " .. npcData.Island,
+                Duration = 5
+            })
+            break
+        end
+    end
+end)
+
+-- Panel de información de quests actual
+QuestTab:CreateToggle("📊 Mostrar Info Quest Actual", false, function(State)
+    getgenv().ShowQuestInfo = State
+    
+    if State then
+        coroutine.wrap(function()
+            local screenGui = Instance.new("ScreenGui")
+            local textLabel = Instance.new("TextLabel")
+            
+            screenGui.Parent = game.Players.LocalPlayer.PlayerGui
+            textLabel.Parent = screenGui
+            
+            textLabel.Size = UDim2.new(0, 300, 0, 100)
+            textLabel.Position = UDim2.new(0, 10, 0, 10)
+            textLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+            textLabel.BackgroundTransparency = 0.5
+            textLabel.TextColor3 = Color3.new(1, 1, 1)
+            textLabel.TextSize = 14
+            textLabel.Font = Enum.Font.Gotham
+            textLabel.TextWrapped = true
+            
+            while getgenv().ShowQuestInfo and wait(1) do
+                if getgenv().CurrentQuestNPC then
+                    textLabel.Text = string.format(
+                        "🎯 QUEST ACTUAL\nNPC: %s\nIsla: %s\nNivel: %s\nEnemigos: %s",
+                        getgenv().CurrentQuestNPC.NPC,
+                        getgenv().CurrentQuestNPC.Island,
+                        getgenv().CurrentQuestNPC.Level,
+                        getgenv().CurrentQuestNPC.Enemies
+                    )
+                else
+                    textLabel.Text = "🎯 AUTO QUEST\nNo hay quest activa\nActiva Auto Quest para empezar"
+                end
+            end
+            
+            screenGui:Destroy()
+        end)()
+    end
+end)
+
+-- Botón para ver toda la lista de NPCs
+QuestTab:CreateButton("📜 Ver Lista Completa de NPCs", function()
+    print("\n🎯 ZERO HUB - LISTA COMPLETA DE NPCS:")
+    print("======================================")
+    
+    for i, npc in ipairs(QuestNPCs) do
+        print(string.format(
+            "\n%d. 🌴 %s\n   👤 %s\n   🏅 Nivel: %s\n   ⚔️ Enemigos: %s\n   🏷️ Tipo: %s",
+            i, npc.Island, npc.NPC, npc.Level, npc.Enemies, npc.Type
+        ))
+    end
+    
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "📜 LISTA NPCS",
+        Text = "Revisa la consola (F9)",
+        Duration = 5
+    })
+end)
+
+-- Sistema de recompensa automática
+QuestTab:CreateToggle("💰 Auto Reclamar Recompensas", false, function(State)
+    getgenv().AutoClaimRewards = State
+    
+    if State then
+        coroutine.wrap(function()
+            while getgenv().AutoClaimRewards and wait(10) do
+                pcall(function()
+                    -- Lógica para reclamar recompensas automáticamente
+                    -- Esto depende de la estructura específica del juego
+                    print("🔄 Verificando recompensas disponibles...")
+                end)
+            end
+        end)()
+    end
+end)
+
+print("✅ ZERO HUB - Sistema de Auto Quest cargado correctamente!")
+print("📍 " .. #QuestNPCs .. " NPCs configurados para First Sea")
