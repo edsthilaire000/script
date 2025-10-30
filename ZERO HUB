@@ -1,283 +1,336 @@
--- ZERO HUB - Sistema Avanzado de Auto Quest para First Sea
-local QuestTab = Window:NewSection("Auto Quest System")
+-- ZERO HUB - Script Completo para Blox Fruits
+-- Creado especialmente para Delta Executor
 
--- Base de datos completa de NPCs y misiones
-local QuestNPCs = {
-    {
-        Island = "Starter Island",
-        NPC = "Starter Quest Giver",
-        Level = "0-10",
-        Enemies = "Bandidos / Trainees",
-        CFrame = CFrame.new(1100, 50, 1550),
-        Type = "Starter"
-    },
-    {
-        Island = "Jungle", 
-        NPC = "Adventurer",
-        Level = "15-30",
-        Enemies = "Monkeys, Gorillas, Gorilla King",
-        CFrame = CFrame.new(-1500, 70, -200),
-        Type = "Normal"
-    },
-    {
-        Island = "Pirate Village",
-        NPC = "Pirate Adventurer", 
-        Level = "30-60",
-        Enemies = "Pirates, Brutes, Bobby (Boss)",
-        CFrame = CFrame.new(-1150, 50, 3850),
-        Type = "Normal"
-    },
-    {
-        Island = "Desert",
-        NPC = "Desert Adventurer",
-        Level = "60-90", 
-        Enemies = "Desert Bandits, Desert Officers",
-        CFrame = CFrame.new(950, 50, 4100),
-        Type = "Normal"
-    },
-    {
-        Island = "Frozen Village",
-        NPC = "Villager",
-        Level = "90-120",
-        Enemies = "Snow Bandits, Yeti",
-        CFrame = CFrame.new(1150, 150, -1250),
-        Type = "Normal"
-    },
-    {
-        Island = "Marine Fortress", 
-        NPC = "Vice Admiral's Assistant",
-        Level = "120-150",
-        Enemies = "Chief Petty Officers, Vice Admiral",
-        CFrame = CFrame.new(-4850, 331, -360),
-        Type = "Normal"
-    },
-    {
-        Island = "Skylands (Lower)",
-        NPC = "Sky Adventurer",
-        Level = "150-190",
-        Enemies = "Sky Bandits, Dark Masters", 
-        CFrame = CFrame.new(-500, 450, -200),
-        Type = "Normal"
-    },
-    {
-        Island = "Prison",
-        NPC = "Warden",
-        Level = "190-250",
-        Enemies = "Prisoners, Chief Warden, Warden",
-        CFrame = CFrame.new(4900, 50, 500),
-        Type = "Boss"
-    },
-    {
-        Island = "Colosseum",
-        NPC = "Arena Trainer", 
-        Level = "250-300",
-        Enemies = "Gladiators",
-        CFrame = CFrame.new(-1800, 50, -2200),
-        Type = "Arena"
-    },
-    {
-        Island = "Magma Village",
-        NPC = "Military Soldier",
-        Level = "300+",
-        Enemies = "Military Soldiers, Vice Admiral",
-        CFrame = CFrame.new(-5500, 80, -1500),
-        Type = "Military"
-    },
-    {
-        Island = "Underwater City",
-        NPC = "Fishman Warrior",
-        Level = "375+", 
-        Enemies = "Fishman Warriors, Fishman Lords",
-        CFrame = CFrame.new(3500, -200, 1000),
-        Type = "Water"
-    },
-    {
-        Island = "Fountain City",
-        NPC = "Spy / Detective",
-        Level = "625+",
-        Enemies = "Galley Pirates, Galley Captains",
-        CFrame = CFrame.new(5000, 50, 700),
-        Type = "Special"
-    }
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local Player = Players.LocalPlayer
+local Mouse = Player:GetMouse()
+
+-- Crear interfaz ZERO HUB
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local TabButtons = Instance.new("Frame")
+local ContentFrame = Instance.new("Frame")
+local UIGradient = Instance.new("UIGradient")
+local Title = Instance.new("TextLabel")
+
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "ZERO_HUB"
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
+MainFrame.Size = UDim2.new(0, 500, 0, 350)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 35)),
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 25))
 }
+UIGradient.Parent = MainFrame
 
--- Variables globales para Auto Quest
-getgenv().AutoQuest = false
-getgenv().CurrentQuestNPC = nil
+Title.Name = "Title"
+Title.Parent = MainFrame
+Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundTransparency = 1.000
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Font = Enum.Font.GothamBold
+Title.Text = "ZERO HUB v2.0 | Blox Fruits"
+Title.TextColor3 = Color3.fromRGB(0, 255, 255)
+Title.TextSize = 16.000
 
--- Función para encontrar NPC más cercano según nivel del jugador
-function GetOptimalQuestNPC()
-    local playerLevel = game:GetService("Players").LocalPlayer.Data.Level.Value
+TabButtons.Name = "TabButtons"
+TabButtons.Parent = MainFrame
+TabButtons.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+TabButtons.BorderSizePixel = 0
+TabButtons.Position = UDim2.new(0, 0, 0, 30)
+TabButtons.Size = UDim2.new(0, 120, 0, 320)
+
+ContentFrame.Name = "ContentFrame"
+ContentFrame.Parent = MainFrame
+ContentFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+ContentFrame.BorderSizePixel = 0
+ContentFrame.Position = UDim2.new(0, 120, 0, 30)
+ContentFrame.Size = UDim2.new(0, 380, 0, 320)
+
+-- Función para crear botones
+function CreateButton(parent, text, position, callback)
+    local Button = Instance.new("TextButton")
+    Button.Parent = parent
+    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    Button.BorderSizePixel = 0
+    Button.Position = position
+    Button.Size = UDim2.new(0, 160, 0, 30)
+    Button.Font = Enum.Font.Gotham
+    Button.Text = text
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextSize = 12.000
     
-    for _, npcData in pairs(QuestNPCs) do
-        local minLevel = tonumber(npcData.Level:match("(%d+)"))
-        local maxLevel = tonumber(npcData.Level:match("%d+%-(%d+)")) or minLevel + 50
-        
-        if playerLevel >= minLevel and playerLevel <= maxLevel then
-            return npcData
-        end
-    end
+    Button.MouseButton1Click:Connect(callback)
     
-    -- Si no encuentra, devuelve el último disponible
-    return QuestNPCs[#QuestNPCs]
+    return Button
 end
 
--- Sistema de Auto Quest inteligente
-QuestTab:CreateToggle("⚡ Auto Quest Inteligente", false, function(State)
-    getgenv().AutoQuest = State
+-- Función para crear toggles
+function CreateToggle(parent, text, position, callback)
+    local ToggleFrame = Instance.new("Frame")
+    local ToggleButton = Instance.new("TextButton")
+    local ToggleStatus = Instance.new("TextLabel")
     
-    if State then
-        coroutine.wrap(function()
-            while getgenv().AutoQuest and wait(3) do
-                pcall(function()
-                    local optimalNPC = GetOptimalQuestNPC()
-                    getgenv().CurrentQuestNPC = optimalNPC
-                    
-                    -- Teleportar al NPC
-                    game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(optimalNPC.CFrame * CFrame.new(0, 0, -5))
-                    
-                    -- Notificación
-                    game:GetService("StarterGui"):SetCore("SendNotification",{
-                        Title = "🎯 AUTO QUEST",
-                        Text = optimalNPC.NPC .. " | Lvl " .. optimalNPC.Level,
-                        Duration = 5
-                    })
-                    
-                    -- Esperar y aceptar quest
-                    wait(2)
-                    -- Aquí iría la lógica para aceptar la quest automáticamente
-                    
-                    -- Buscar y farmear enemigos de la quest
-                    FarmQuestEnemies(optimalNPC.Enemies)
-                end)
-            end
-        end)()
-    end
-end)
+    ToggleFrame.Parent = parent
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    ToggleFrame.BorderSizePixel = 0
+    ToggleFrame.Position = position
+    ToggleFrame.Size = UDim2.new(0, 160, 0, 25)
+    
+    ToggleButton.Parent = ToggleFrame
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    ToggleButton.BorderSizePixel = 0
+    ToggleButton.Position = UDim2.new(0, 5, 0, 2)
+    ToggleButton.Size = UDim2.new(0, 60, 0, 21)
+    ToggleButton.Font = Enum.Font.Gotham
+    ToggleButton.Text = "OFF"
+    ToggleButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+    ToggleButton.TextSize = 11.000
+    
+    ToggleStatus.Parent = ToggleFrame
+    ToggleStatus.BackgroundTransparency = 1
+    ToggleStatus.Position = UDim2.new(0, 70, 0, 0)
+    ToggleStatus.Size = UDim2.new(0, 85, 0, 25)
+    ToggleStatus.Font = Enum.Font.Gotham
+    ToggleStatus.Text = text
+    ToggleStatus.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleStatus.TextSize = 11.000
+    ToggleStatus.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local isToggled = false
+    
+    ToggleButton.MouseButton1Click:Connect(function()
+        isToggled = not isToggled
+        if isToggled then
+            ToggleButton.Text = "ON"
+            ToggleButton.TextColor3 = Color3.fromRGB(100, 255, 100)
+            ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 80, 40)
+        else
+            ToggleButton.Text = "OFF"
+            ToggleButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+            ToggleButton.BackgroundColor3 = Color3.fromRGB(80, 40, 40)
+        end
+        callback(isToggled)
+    end)
+    
+    return ToggleFrame
+end
 
--- Función para farmear enemigos de la quest
-function FarmQuestEnemies(enemyTypes)
-    -- Lógica mejorada para encontrar y farmear enemigos específicos
-    local enemies = workspace:FindFirstChild("Enemies")
-    if enemies then
-        for _, enemy in pairs(enemies:GetChildren()) do
-            if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
-                for _, enemyType in pairs(string.split(enemyTypes, ", ")) do
-                    if string.find(enemy.Name, enemyType) then
-                        -- Atacar enemigo
-                        game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 0, -8))
-                        wait(0.5)
-                        -- Activar armas
-                        for _, tool in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-                            if tool:IsA("Tool") then
-                                tool:Activate()
+-- Sistema de Tabs
+local Tabs = {}
+local CurrentTab = ""
+
+function CreateTab(name)
+    local TabButton = Instance.new("TextButton")
+    TabButton.Parent = TabButtons
+    TabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    TabButton.BorderSizePixel = 0
+    TabButton.Size = UDim2.new(1, 0, 0, 30)
+    TabButton.Font = Enum.Font.Gotham
+    TabButton.Text = name
+    TabButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+    TabButton.TextSize = 12.000
+    
+    local TabContent = Instance.new("ScrollingFrame")
+    TabContent.Parent = ContentFrame
+    TabContent.BackgroundTransparency = 1
+    TabContent.Size = UDim2.new(1, 0, 1, 0)
+    TabContent.ScrollBarThickness = 4
+    TabContent.Visible = false
+    
+    Tabs[name] = TabContent
+    
+    TabButton.MouseButton1Click:Connect(function()
+        for tabName, tabContent in pairs(Tabs) do
+            tabContent.Visible = false
+        end
+        Tabs[name].Visible = true
+        CurrentTab = name
+    end)
+    
+    return TabContent
+end
+
+-- Crear tabs principales
+local FarmingTab = CreateTab("⚡ Farming")
+local TeleportTab = CreateTab("📍 Teleports")
+local PlayerTab = CreateTab("👤 Player")
+local MiscTab = CreateTab("🔧 Misc")
+
+-- Mostrar primer tab por defecto
+Tabs["⚡ Farming"].Visible = true
+CurrentTab = "⚡ Farming"
+
+-- ========== SISTEMA DE FARMING ==========
+local AutoFarmEnabled = false
+local AutoBusoEnabled = false
+
+CreateToggle(FarmingTab, "Auto Farm", UDim2.new(0, 10, 0, 10), function(state)
+    AutoFarmEnabled = state
+    if state then
+        spawn(function()
+            while AutoFarmEnabled and wait(0.5) do
+                pcall(function()
+                    -- Lógica simple de auto farm
+                    local enemies = workspace:FindFirstChild("Enemies")
+                    if enemies then
+                        for _, enemy in pairs(enemies:GetChildren()) do
+                            if AutoFarmEnabled and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                                Player.Character:SetPrimaryPartCFrame(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 0, -8))
+                                wait(0.3)
+                                -- Simular ataque
+                                for _, tool in pairs(Player.Character:GetChildren()) do
+                                    if tool:IsA("Tool") then
+                                        tool:Activate()
+                                    end
+                                end
                             end
                         end
-                        break
                     end
-                end
+                end)
             end
-        end
+        end)
     end
-end
+end)
 
--- Selector manual de NPC para quests
-local npcOptions = {}
-for _, npcData in pairs(QuestNPCs) do
-    table.insert(npcOptions, npcData.NPC .. " | " .. npcData.Level)
-end
+CreateToggle(FarmingTab, "Auto Buso Haki", UDim2.new(0, 10, 0, 40), function(state)
+    AutoBusoEnabled = state
+    if state then
+        spawn(function()
+            while AutoBusoEnabled and wait(10) do
+                pcall(function()
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
+                end)
+            end
+        end)
+    end
+end)
 
-QuestTab:CreateDropdown("🎯 Seleccionar NPC Manual", npcOptions, function(selected)
-    for _, npcData in pairs(QuestNPCs) do
-        if npcData.NPC .. " | " .. npcData.Level == selected then
-            getgenv().CurrentQuestNPC = npcData
-            game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(npcData.CFrame * CFrame.new(0, 0, -5))
-            
+CreateToggle(FarmingTab, "Auto Click", UDim2.new(0, 10, 0, 70), function(state)
+    getgenv().AutoClick = state
+    if state then
+        spawn(function()
+            while getgenv().AutoClick and wait(0.1) do
+                pcall(function()
+                    mouse1click()
+                end)
+            end
+        end)
+    end
+end)
+
+-- ========== SISTEMA DE TELEPORTS ==========
+local Islands = {
+    {"Pirate Starter", CFrame.new(1099, 49, 1555)},
+    {"Marine Starter", CFrame.new(-2828, 49, 2093)},
+    {"Jungle", CFrame.new(-1500, 70, -200)},
+    {"Pirate Village", CFrame.new(-1150, 50, 3850)},
+    {"Desert", CFrame.new(950, 50, 4100)},
+    {"Frozen Village", CFrame.new(1150, 150, -1250)},
+    {"Marine Fortress", CFrame.new(-4850, 331, -360)},
+    {"Skylands", CFrame.new(-500, 450, -200)},
+    {"Prison", CFrame.new(4900, 50, 500)}
+}
+
+for i, island in pairs(Islands) do
+    CreateButton(TeleportTab, island[1], UDim2.new(0, 10, 0, 10 + ((i-1) * 35)), function()
+        pcall(function()
+            Player.Character:SetPrimaryPartCFrame(island[2])
             game:GetService("StarterGui"):SetCore("SendNotification",{
-                Title = "🎯 TELEPORT NPC",
-                Text = npcData.NPC .. " - " .. npcData.Island,
-                Duration = 5
+                Title = "ZERO HUB",
+                Text = "Teleport: " .. island[1],
+                Duration = 3
             })
-            break
-        end
-    end
+        end)
+    end)
+end
+
+-- ========== MODIFICACIONES DE PLAYER ==========
+CreateButton(PlayerTab, "Walkspeed +50", UDim2.new(0, 10, 0, 10), function()
+    pcall(function()
+        Player.Character.Humanoid.WalkSpeed = 50
+    end)
 end)
 
--- Panel de información de quests actual
-QuestTab:CreateToggle("📊 Mostrar Info Quest Actual", false, function(State)
-    getgenv().ShowQuestInfo = State
-    
-    if State then
-        coroutine.wrap(function()
-            local screenGui = Instance.new("ScreenGui")
-            local textLabel = Instance.new("TextLabel")
-            
-            screenGui.Parent = game.Players.LocalPlayer.PlayerGui
-            textLabel.Parent = screenGui
-            
-            textLabel.Size = UDim2.new(0, 300, 0, 100)
-            textLabel.Position = UDim2.new(0, 10, 0, 10)
-            textLabel.BackgroundColor3 = Color3.new(0, 0, 0)
-            textLabel.BackgroundTransparency = 0.5
-            textLabel.TextColor3 = Color3.new(1, 1, 1)
-            textLabel.TextSize = 14
-            textLabel.Font = Enum.Font.Gotham
-            textLabel.TextWrapped = true
-            
-            while getgenv().ShowQuestInfo and wait(1) do
-                if getgenv().CurrentQuestNPC then
-                    textLabel.Text = string.format(
-                        "🎯 QUEST ACTUAL\nNPC: %s\nIsla: %s\nNivel: %s\nEnemigos: %s",
-                        getgenv().CurrentQuestNPC.NPC,
-                        getgenv().CurrentQuestNPC.Island,
-                        getgenv().CurrentQuestNPC.Level,
-                        getgenv().CurrentQuestNPC.Enemies
-                    )
-                else
-                    textLabel.Text = "🎯 AUTO QUEST\nNo hay quest activa\nActiva Auto Quest para empezar"
-                end
+CreateButton(PlayerTab, "JumpPower +100", UDim2.new(0, 10, 0, 50), function()
+    pcall(function()
+        Player.Character.Humanoid.JumpPower = 100
+    end)
+end)
+
+local NoclipEnabled = false
+CreateToggle(PlayerTab, "Noclip", UDim2.new(0, 10, 0, 90), function(state)
+    NoclipEnabled = state
+    if state then
+        spawn(function()
+            while NoclipEnabled and wait() do
+                pcall(function()
+                    for _, part in pairs(Player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
+                    end
+                end)
             end
-            
-            screenGui:Destroy()
-        end)()
+        end)
     end
 end)
 
--- Botón para ver toda la lista de NPCs
-QuestTab:CreateButton("📜 Ver Lista Completa de NPCs", function()
-    print("\n🎯 ZERO HUB - LISTA COMPLETA DE NPCS:")
-    print("======================================")
-    
-    for i, npc in ipairs(QuestNPCs) do
-        print(string.format(
-            "\n%d. 🌴 %s\n   👤 %s\n   🏅 Nivel: %s\n   ⚔️ Enemigos: %s\n   🏷️ Tipo: %s",
-            i, npc.Island, npc.NPC, npc.Level, npc.Enemies, npc.Type
-        ))
-    end
-    
+-- ========== MISCELÁNEOS ==========
+CreateButton(MiscTab, "Rejoin Server", UDim2.new(0, 10, 0, 10), function()
+    game:GetService("TeleportService"):Teleport(game.PlaceId, Player)
+end)
+
+CreateButton(MiscTab, "Server Hop", UDim2.new(0, 10, 0, 50), function()
+    -- Lógica simple para cambiar de servidor
+    game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId)
+end)
+
+CreateButton(MiscTab, "Anti AFK", UDim2.new(0, 10, 0, 90), function()
+    local VirtualUser = game:GetService("VirtualUser")
+    Player.Idled:connect(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end)
     game:GetService("StarterGui"):SetCore("SendNotification",{
-        Title = "📜 LISTA NPCS",
-        Text = "Revisa la consola (F9)",
-        Duration = 5
+        Title = "ZERO HUB",
+        Text = "Anti AFK Activado",
+        Duration = 3
     })
 end)
 
--- Sistema de recompensa automática
-QuestTab:CreateToggle("💰 Auto Reclamar Recompensas", false, function(State)
-    getgenv().AutoClaimRewards = State
-    
-    if State then
-        coroutine.wrap(function()
-            while getgenv().AutoClaimRewards and wait(10) do
-                pcall(function()
-                    -- Lógica para reclamar recompensas automáticamente
-                    -- Esto depende de la estructura específica del juego
-                    print("🔄 Verificando recompensas disponibles...")
-                end)
-            end
-        end)()
+-- ========== INICIALIZACIÓN ==========
+game:GetService("StarterGui"):SetCore("SendNotification",{
+    Title = "ZERO HUB",
+    Text = "Cargado Exitosamente!",
+    Duration = 5
+})
+
+print("🎯 ZERO HUB v2.0 Cargado!")
+print("⚡ Farming System: Auto Farm, Auto Buso, Auto Click")
+print("📍 Teleports: " .. #Islands .. " Islas disponibles")
+print("👤 Player Mods: Walkspeed, JumpPower, Noclip")
+print("🔧 Utilities: Rejoin, Server Hop, Anti AFK")
+
+-- Cerrar interfaz con tecla
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.RightControl then
+        ScreenGui.Enabled = not ScreenGui.Enabled
     end
 end)
 
-print("✅ ZERO HUB - Sistema de Auto Quest cargado correctamente!")
-print("📍 " .. #QuestNPCs .. " NPCs configurados para First Sea")
+warn("ZERO HUB: Presiona RightControl para mostrar/ocultar el menu")
