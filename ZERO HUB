@@ -1,191 +1,198 @@
--- ZERO Hub - Script para Blox Fruits
--- By [Tu Nombre]
+-- ZERO HUB - Sistema de Teleports Mejorado para First Sea
+local TeleportTab = Window:NewSection("Teleports - First Sea")
 
-local ZERO_Hub = {
-    Version = "1.0",
-    LastUpdate = "2024"
+-- Tabla completa de islas con niveles y coordenadas
+local FirstSeaIslands = {
+    {
+        Name = "🚩 Pirate Starter Island",
+        Level = "0+",
+        CFrame = CFrame.new(1099.00, 48.90, 1555.00),
+        Description = "Isla de spawn para piratas - Misiones muy fáciles"
+    },
+    {
+        Name = "⚓ Marine Starter Island", 
+        Level = "0+",
+        CFrame = CFrame.new(-2827.99, 48.90, 2093.20),
+        Description = "Isla de spawn para marines - Tutorial básico"
+    },
+    {
+        Name = "🌴 Jungle",
+        Level = "15+",
+        CFrame = CFrame.new(-1500.00, 70.00, -200.00),
+        Description = "Norte/NE desde starter islands - Monos/Gorilas"
+    },
+    {
+        Name = "🏴‍☠️ Pirate Village",
+        Level = "30+", 
+        CFrame = CFrame.new(-1150.00, 50.00, 3850.00),
+        Description = "Al noreste del Jungle - Misiones de piratas"
+    },
+    {
+        Name = "🏜️ Desert",
+        Level = "60+",
+        CFrame = CFrame.new(950.00, 50.00, 4100.00),
+        Description = "Este de Pirate Village - Cactus y enemigos desérticos"
+    },
+    {
+        Name = "🏔️ Frozen Village",
+        Level = "90+",
+        CFrame = CFrame.new(1150.00, 150.00, -1250.00),
+        Description = "Al norte/centro - Yeti como boss"
+    },
+    {
+        Name = "🏰 Marine Fortress",
+        Level = "120+",
+        CFrame = CFrame.new(-4850.00, 331.00, -360.00),
+        Description = "Norte del Frozen Village - Oficiales marines"
+    },
+    {
+        Name = "☁️ Skylands (Lower)",
+        Level = "150+",
+        CFrame = CFrame.new(-500.00, 450.00, -200.00),
+        Description = "Islas flotantes - Enemigos aéreos"
+    },
+    {
+        Name = "⚡ Skylands (Upper)",
+        Level = "175+", 
+        CFrame = CFrame.new(-800.00, 850.00, -100.00),
+        Description = "Zona superior de Skylands"
+    },
+    {
+        Name = "🌋 Magma Village",
+        Level = "200+",
+        CFrame = CFrame.new(-5500.00, 80.00, -1500.00),
+        Description = "Zona volcánica - Enemigos de magma"
+    },
+    {
+        Name = "⛲ Fountain City",
+        Level = "30+",
+        CFrame = CFrame.new(5000.00, 50.00, 700.00),
+        Description = "Ubicación central - NPCs importantes"
+    },
+    {
+        Name = "🏙️ Middle Town",
+        Level = "100+",
+        CFrame = CFrame.new(-650.00, 50.00, 1550.00),
+        Description = "Isla central - Boss Saw"
+    },
+    {
+        Name = "🔒 Prison",
+        Level = "190-250",
+        CFrame = CFrame.new(4900.00, 50.00, 500.00),
+        Description = "Isla prisión - Desbloquea Second Sea"
+    },
+    {
+        Name = "⚔️ Colosseum",
+        Level = "Varía",
+        CFrame = CFrame.new(-1800.00, 50.00, -2200.00),
+        Description = "Área de combate especial - PvP"
+    },
+    {
+        Name = "🌊 Underwater City",
+        Level = "Varía",
+        CFrame = CFrame.new(3500.00, -200.00, 1000.00),
+        Description = "Ciudad submarina - NPCs únicos"
+    }
 }
 
--- Servicios
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local TeleportService = game:GetService("TeleportService")
-
--- Variables
-local Player = Players.LocalPlayer
-local Mouse = Player:GetMouse()
-
--- Librería GUI
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
-
--- Crear ventana principal
-local Window = Library:NewWindow("ZERO Hub", "v" .. ZERO_Hub.Version)
-
--- Tabs principales
-local MainTab = Window:NewSection("Farming")
-local TeleportTab = Window:NewSection("Teleports")
-local PlayerTab = Window:NewSection("Player")
-local MiscTab = Window:NewSection("Miscellaneous")
-
--- FUNCIONES DE FARMING
-MainTab:CreateToggle("Auto Farm", false, function(State)
-    getgenv().AutoFarm = State
-    
-    if State then
-        coroutine.wrap(function()
-            while getgenv().AutoFarm and wait() do
-                -- Aquí iría la lógica de auto farm
-                pcall(function()
-                    -- Ejemplo básico de auto farm
-                    local Enemies = workspace:FindFirstChild("Enemies")
-                    if Enemies then
-                        for _, Enemy in pairs(Enemies:GetChildren()) do
-                            if Enemy:FindFirstChild("Humanoid") and Enemy.Humanoid.Health > 0 then
-                                -- Lógica de ataque
-                                Player.Character:SetPrimaryPartCFrame(Enemy.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5))
-                                wait(0.2)
-                                -- Simular ataque
-                                if Player.Character:FindFirstChildOfClass("Tool") then
-                                    Player.Character:FindFirstChildOfClass("Tool"):Activate()
-                                end
-                            end
-                        end
-                    end
-                end)
-            end
-        end)()
+-- Crear botones de teleport organizados por nivel
+TeleportTab:CreateLabel("=== ISLAS DE INICIO ===")
+for _, island in pairs(FirstSeaIslands) do
+    if island.Level == "0+" then
+        TeleportTab:CreateButton(island.Name .. " [Lvl " .. island.Level .. "]", function()
+            TeleportPlayer(island)
+        end)
     end
-end)
-
-MainTab:CreateToggle("Auto Buso", false, function(State)
-    getgenv().AutoBuso = State
-    
-    if State then
-        coroutine.wrap(function()
-            while getgenv().AutoBuso and wait(1) do
-                pcall(function()
-                    -- Activar Buso Haki automáticamente
-                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
-                end)
-            end
-        end)()
-    end
-end)
-
--- TELEPORTS
-local Islands = {
-    "Marine Starter",
-    "Pirate Starter",
-    "Jungle",
-    "Pirate Village",
-    "Desert",
-    "Frozen Village",
-    "Colosseum",
-    "Sky Island 1",
-    "Sky Island 2",
-    "Prison"
-}
-
-for _, Island in pairs(Islands) do
-    TeleportTab:CreateButton("TP to " .. Island, function()
-        -- Aquí irían las coordenadas de cada isla
-        local CFrames = {
-            ["Marine Starter"] = CFrame.new(-2827.99, 48.90, 2093.20),
-            ["Pirate Starter"] = CFrame.new(1099.00, 48.90, 1555.00),
-            -- Agregar más coordenadas...
-        }
-        
-        if CFrames[Island] then
-            Player.Character:SetPrimaryPartCFrame(CFrames[Island])
-        end
-    end)
 end
 
--- PLAYER MODIFICATIONS
-PlayerTab:CreateSlider("WalkSpeed", 16, 200, 16, function(Value)
-    pcall(function()
-        Player.Character.Humanoid.WalkSpeed = Value
-    end)
-end)
+TeleportTab:CreateLabel("=== ISLAS INTERMEDIAS ===")
+for _, island in pairs(FirstSeaIslands) do
+    local level = tonumber(island.Level:match("%d+"))
+    if level and level >= 15 and level <= 120 then
+        TeleportTab:CreateButton(island.Name .. " [Lvl " .. island.Level .. "]", function()
+            TeleportPlayer(island)
+        end)
+    end
+end
 
-PlayerTab:CreateSlider("JumpPower", 50, 200, 50, function(Value)
-    pcall(function()
-        Player.Character.Humanoid.JumpPower = Value
-    end)
-end)
+TeleportTab:CreateLabel("=== ISLAS AVANZADAS ===")
+for _, island in pairs(FirstSeaIslands) do
+    local level = tonumber(island.Level:match("%d+"))
+    if level and level >= 150 or island.Level == "190-250" then
+        TeleportTab:CreateButton(island.Name .. " [Lvl " .. island.Level .. "]", function()
+            TeleportPlayer(island)
+        end)
+    end
+end
 
-PlayerTab:CreateToggle("Noclip", false, function(State)
-    getgenv().Noclip = State
+TeleportTab:CreateLabel("=== ISLAS ESPECIALES ===")
+for _, island in pairs(FirstSeaIslands) do
+    if island.Level == "Varía" then
+        TeleportTab:CreateButton(island.Name .. " [Lvl " .. island.Level .. "]", function()
+            TeleportPlayer(island)
+        end)
+    end
+end
+
+-- Función mejorada de teleport
+function TeleportPlayer(islandData)
+    local Player = game.Players.LocalPlayer
+    local Character = Player.Character
     
-    if State then
-        coroutine.wrap(function()
-            while getgenv().Noclip and wait() do
-                pcall(function()
-                    for _, part in pairs(Player.Character:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            part.CanCollide = false
-                        end
-                    end
-                end)
-            end
-        end)()
+    if Character and Character:FindFirstChild("HumanoidRootPart") then
+        -- Notificación de teleport
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "ZERO HUB - Teleport",
+            Text = "Viajando a: " .. islandData.Name,
+            Duration = 3
+        })
+        
+        -- Efecto de teleportación suave
+        local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        local tween = TweenService:Create(Character.HumanoidRootPart, tweenInfo, {CFrame = islandData.CFrame})
+        tween:Play()
+        
+        -- Mensaje en consola
+        print("📍 ZERO HUB: Teleportando a " .. islandData.Name)
+        print("📊 Nivel recomendado: " .. islandData.Level)
+        print("📝 " .. islandData.Description)
+    else
+        warn("❌ Error: No se encontró el Character del jugador")
+    end
+end
+
+-- Sistema de teleport automático por nivel
+TeleportTab:CreateDropdown("Teleport Auto por Nivel", {
+    "Nivel 0-14 (Starter Islands)",
+    "Nivel 15-29 (Jungle)", 
+    "Nivel 30-59 (Pirate Village)",
+    "Nivel 60-89 (Desert)",
+    "Nivel 90-119 (Frozen Village)",
+    "Nivel 120-149 (Marine Fortress)",
+    "Nivel 150+ (Skylands)",
+    "Nivel 200+ (Magma Village/Prison)"
+}, function(selected)
+    local targetIsland
+    
+    if selected == "Nivel 0-14 (Starter Islands)" then
+        targetIsland = FirstSeaIslands[1] -- Pirate Starter
+    elseif selected == "Nivel 15-29 (Jungle)" then
+        targetIsland = FirstSeaIslands[3] -- Jungle
+    elseif selected == "Nivel 30-59 (Pirate Village)" then
+        targetIsland = FirstSeaIslands[4] -- Pirate Village
+    elseif selected == "Nivel 60-89 (Desert)" then
+        targetIsland = FirstSeaIslands[5] -- Desert
+    elseif selected == "Nivel 90-119 (Frozen Village)" then
+        targetIsland = FirstSeaIslands[6] -- Frozen Village
+    elseif selected == "Nivel 120-149 (Marine Fortress)" then
+        targetIsland = FirstSeaIslands[7] -- Marine Fortress
+    elseif selected == "Nivel 150+ (Skylands)" then
+        targetIsland = FirstSeaIslands[8] -- Skylands Lower
+    elseif selected == "Nivel 200+ (Magma Village/Prison)" then
+        targetIsland = FirstSeaIslands[10] -- Magma Village
+    end
+    
+    if targetIsland then
+        TeleportPlayer(targetIsland)
     end
 end)
-
--- MISCELÁNEOS
-MiscTab:CreateToggle("Auto Click", false, function(State)
-    getgenv().AutoClick = State
-    
-    if State then
-        coroutine.wrap(function()
-            while getgenv().AutoClick and wait(0.1) do
-                pcall(function()
-                    -- Simular click automático
-                    mouse1click()
-                end)
-            end
-        end)()
-    end
-end)
-
-MiscTab:CreateButton("Rejoin Server", function()
-    TeleportService:Teleport(game.PlaceId, Player)
-end)
-
-MiscTab:CreateButton("Server Hop", function()
-    -- Función para cambiar de servidor
-    local Http = game:GetService("HttpService")
-    local TPS = game:GetService("TeleportService")
-    local Api = "https://games.roblox.com/v1/games/"
-    
-    local _place = game.PlaceId
-    local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=100"
-    
-    function ListServers(cursor)
-        local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
-        return Http:JSONDecode(Raw)
-    end
-    
-    local Next; repeat
-        local Servers = ListServers(Next)
-        for i,v in next, Servers.data do
-            if v.playing < v.maxPlayers and v.id ~= game.JobId then
-                TPS:TeleportToPlaceInstance(_place, v.id)
-            end
-        end
-        Next = Servers.nextPageCursor
-    until not Next
-end)
-
--- ANTI AFK
-local VirtualUser = game:GetService("VirtualUser")
-Player.Idled:connect(function()
-    VirtualUser:CaptureController()
-    VirtualUser:ClickButton2(Vector2.new())
-end)
-
--- INICIALIZACIÓN
-print("ZERO Hub v" .. ZERO_Hub.Version .. " loaded successfully!")
-Player:SetAttribute("ZERO_Hub_Loaded", true)
