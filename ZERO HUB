@@ -1,4 +1,4 @@
--- ZEIRO HUB - Menú Mejorado y Corregido
+-- ZEIRO HUB - Estilo Redz Hub
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -10,10 +10,13 @@ local Mouse = Player:GetMouse()
 -- Crear interfaz principal
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
-local UIGradient = Instance.new("UIGradient")
+local TopBar = Instance.new("Frame")
+local UICorner_TopBar = Instance.new("UICorner")
 local Title = Instance.new("TextLabel")
 local TabsFrame = Instance.new("Frame")
+local UICorner_Tabs = Instance.new("UICorner")
 local ContentFrame = Instance.new("Frame")
+local UICorner_Content = Instance.new("UICorner")
 
 -- Configurar ScreenGui
 ScreenGui.Name = "ZEIRO_HUB"
@@ -21,73 +24,83 @@ ScreenGui.Parent = game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
 
--- Configurar MainFrame
+-- Configurar MainFrame con estilo Redz
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 MainFrame.BorderSizePixel = 0
-MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
-MainFrame.Size = UDim2.new(0, 500, 0, 350)
+MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+MainFrame.Size = UDim2.new(0, 600, 0, 400)
+MainFrame.ClipsDescendants = true
 MainFrame.Active = true
 MainFrame.Draggable = true
 
--- Gradiente para el diseño
-UIGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(30, 30, 45)),
-    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(20, 20, 30))
-}
-UIGradient.Parent = MainFrame
+-- Barra superior estilo Redz
+TopBar.Name = "TopBar"
+TopBar.Parent = MainFrame
+TopBar.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+TopBar.Size = UDim2.new(1, 0, 0, 35)
+UICorner_TopBar.CornerRadius = UDim.new(0, 8)
+UICorner_TopBar.Parent = TopBar
 
--- Título
+-- Título con estilo Redz
 Title.Name = "Title"
-Title.Parent = MainFrame
+Title.Parent = TopBar
 Title.BackgroundTransparency = 1
-Title.Position = UDim2.new(0, 0, 0, 0)
-Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Position = UDim2.new(0, 15, 0, 0)
+Title.Size = UDim2.new(1, -30, 1, 0)
 Title.Font = Enum.Font.GothamBold
-Title.Text = "ZEIRO HUB v2.1"
-Title.TextColor3 = Color3.fromRGB(0, 255, 255)
-Title.TextSize = 18.000
+Title.Text = "ZEIRO HUB PREMIUM"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 20.000
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Marco para pestañas
+-- Marco para pestañas estilo Redz
 TabsFrame.Name = "TabsFrame"
 TabsFrame.Parent = MainFrame
 TabsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-TabsFrame.BorderSizePixel = 0
-TabsFrame.Position = UDim2.new(0, 0, 0, 30)
-TabsFrame.Size = UDim2.new(0, 120, 1, -30)
+TabsFrame.Position = UDim2.new(0, 10, 0, 45)
+TabsFrame.Size = UDim2.new(0, 140, 1, -55)
+UICorner_Tabs.CornerRadius = UDim.new(0, 8)
+UICorner_Tabs.Parent = TabsFrame
 
--- Marco para contenido
+-- Marco para contenido estilo Redz
 ContentFrame.Name = "ContentFrame"
 ContentFrame.Parent = MainFrame
-ContentFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-ContentFrame.BorderSizePixel = 0
-ContentFrame.Position = UDim2.new(0, 120, 0, 30)
-ContentFrame.Size = UDim2.new(1, -120, 1, -30)
+ContentFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+ContentFrame.Position = UDim2.new(0, 160, 0, 45)
+ContentFrame.Size = UDim2.new(1, -170, 1, -55)
+UICorner_Content.CornerRadius = UDim.new(0, 8)
+UICorner_Content.Parent = ContentFrame
 
--- Función para crear botones
+-- Función para crear botones estilo Redz
 local function CreateButton(text, position)
     local Button = Instance.new("TextButton")
+    local UICorner = Instance.new("UICorner")
+    
     Button.Name = text.."Button"
     Button.Parent = ContentFrame
     Button.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    Button.BorderSizePixel = 0
     Button.Position = position
-    Button.Size = UDim2.new(0, 160, 0, 30)
-    Button.Font = Enum.Font.Gotham
+    Button.Size = UDim2.new(0, 180, 0, 35)
+    Button.Font = Enum.Font.GothamSemibold
     Button.Text = text
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.TextSize = 14.000
+    Button.AutoButtonColor = false
+    
+    UICorner.CornerRadius = UDim.new(0, 6)
+    UICorner.Parent = Button
     
     -- Efectos del botón
     Button.MouseEnter:Connect(function()
-        game:GetService("TweenService"):Create(Button, TweenInfo.new(0.2), {
+        TweenService:Create(Button, TweenInfo.new(0.2), {
             BackgroundColor3 = Color3.fromRGB(55, 55, 65)
         }):Play()
     end)
     
     Button.MouseLeave:Connect(function()
-        game:GetService("TweenService"):Create(Button, TweenInfo.new(0.2), {
+        TweenService:Create(Button, TweenInfo.new(0.2), {
             BackgroundColor3 = Color3.fromRGB(45, 45, 55)
         }):Play()
     end)
@@ -95,62 +108,70 @@ local function CreateButton(text, position)
     return Button
 end
 
--- Función para crear toggles
+-- Función para crear toggles estilo Redz
 local function CreateToggle(text, position)
     local ToggleFrame = Instance.new("Frame")
+    local UICorner = Instance.new("UICorner")
     local ToggleButton = Instance.new("TextButton")
+    local UICorner_2 = Instance.new("UICorner")
     local ToggleStatus = Instance.new("TextLabel")
+    local ToggleIndicator = Instance.new("Frame")
+    local UICorner_3 = Instance.new("UICorner")
     
     ToggleFrame.Name = text.."Toggle"
     ToggleFrame.Parent = ContentFrame
-    ToggleFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    ToggleFrame.BorderSizePixel = 0
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
     ToggleFrame.Position = position
-    ToggleFrame.Size = UDim2.new(0, 160, 0, 30)
+    ToggleFrame.Size = UDim2.new(0, 180, 0, 40)
     
-    ToggleButton.Name = "Button"
-    ToggleButton.Parent = ToggleFrame
-    ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-    ToggleButton.BorderSizePixel = 0
-    ToggleButton.Position = UDim2.new(0, 5, 0, 5)
-    ToggleButton.Size = UDim2.new(0, 40, 0, 20)
-    ToggleButton.Font = Enum.Font.GothamBold
-    ToggleButton.Text = "OFF"
-    ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ToggleButton.TextSize = 12.000
+    UICorner.CornerRadius = UDim.new(0, 6)
+    UICorner.Parent = ToggleFrame
     
     ToggleStatus.Name = "Status"
     ToggleStatus.Parent = ToggleFrame
     ToggleStatus.BackgroundTransparency = 1
-    ToggleStatus.Position = UDim2.new(0, 50, 0, 0)
-    ToggleStatus.Size = UDim2.new(1, -55, 1, 0)
-    ToggleStatus.Font = Enum.Font.Gotham
+    ToggleStatus.Position = UDim2.new(0, 15, 0, 0)
+    ToggleStatus.Size = UDim2.new(1, -65, 1, 0)
+    ToggleStatus.Font = Enum.Font.GothamSemibold
     ToggleStatus.Text = text
     ToggleStatus.TextColor3 = Color3.fromRGB(255, 255, 255)
     ToggleStatus.TextSize = 14.000
     ToggleStatus.TextXAlignment = Enum.TextXAlignment.Left
     
+    ToggleIndicator.Name = "Indicator"
+    ToggleIndicator.Parent = ToggleFrame
+    ToggleIndicator.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    ToggleIndicator.Position = UDim2.new(1, -50, 0.5, -10)
+    ToggleIndicator.Size = UDim2.new(0, 35, 0, 20)
+    
+    UICorner_3.CornerRadius = UDim.new(0, 10)
+    UICorner_3.Parent = ToggleIndicator
+    
     local isToggled = false
     
-    ToggleButton.MouseButton1Click:Connect(function()
-        isToggled = not isToggled
-        if isToggled then
-            ToggleButton.Text = "ON"
-            ToggleButton.BackgroundColor3 = Color3.fromRGB(80, 255, 80)
-            if text == "Auto Farm" then
-                getgenv().AutoFarmEnabled = true
-                StartAutoFarm()
-            elseif text == "Auto Buso" then
-                getgenv().AutoBusoEnabled = true
-                AutoBuso()
-            end
-        else
-            ToggleButton.Text = "OFF"
-            ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-            if text == "Auto Farm" then
-                getgenv().AutoFarmEnabled = false
-            elseif text == "Auto Buso" then
-                getgenv().AutoBusoEnabled = false
+    ToggleFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isToggled = not isToggled
+            if isToggled then
+                TweenService:Create(ToggleIndicator, TweenInfo.new(0.2), {
+                    BackgroundColor3 = Color3.fromRGB(80, 255, 80)
+                }):Play()
+                if text == "Auto Farm" then
+                    getgenv().AutoFarmEnabled = true
+                    StartAutoFarm()
+                elseif text == "Auto Buso" then
+                    getgenv().AutoBusoEnabled = true
+                    AutoBuso()
+                end
+            else
+                TweenService:Create(ToggleIndicator, TweenInfo.new(0.2), {
+                    BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+                }):Play()
+                if text == "Auto Farm" then
+                    getgenv().AutoFarmEnabled = false
+                elseif text == "Auto Buso" then
+                    getgenv().AutoBusoEnabled = false
+                end
             end
         end
     end)
@@ -158,61 +179,71 @@ local function CreateToggle(text, position)
     return ToggleFrame
 end
 
--- Crear tabs
-local function CreateTab(text)
+-- Crear tabs estilo Redz
+local function CreateTab(text, icon)
     local TabButton = Instance.new("TextButton")
+    local UICorner = Instance.new("UICorner")
+    local Icon = Instance.new("ImageLabel")
+    
     TabButton.Name = text.."Tab"
     TabButton.Parent = TabsFrame
-    TabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    TabButton.BorderSizePixel = 0
-    TabButton.Size = UDim2.new(1, 0, 0, 30)
-    TabButton.Font = Enum.Font.GothamBold
-    TabButton.Text = text
+    TabButton.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    TabButton.Size = UDim2.new(1, -20, 0, 35)
+    TabButton.Position = UDim2.new(0, 10, 0, #TabsFrame:GetChildren() * 45)
+    TabButton.Font = Enum.Font.GothamSemibold
+    TabButton.Text = "  " .. text
     TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     TabButton.TextSize = 14.000
+    TabButton.TextXAlignment = Enum.TextXAlignment.Left
     
-    local ContentPage = Instance.new("Frame")
+    UICorner.CornerRadius = UDim.new(0, 6)
+    UICorner.Parent = TabButton
+    
+    if icon then
+        Icon.Name = "Icon"
+        Icon.Parent = TabButton
+        Icon.BackgroundTransparency = 1
+        Icon.Position = UDim2.new(0, 5, 0.5, -8)
+        Icon.Size = UDim2.new(0, 16, 0, 16)
+        Icon.Image = icon
+    end
+    
+    local ContentPage = Instance.new("ScrollingFrame")
     ContentPage.Name = text.."Page"
     ContentPage.Parent = ContentFrame
     ContentPage.BackgroundTransparency = 1
-    ContentPage.Size = UDim2.new(1, 0, 1, 0)
+    ContentPage.Position = UDim2.new(0, 10, 0, 10)
+    ContentPage.Size = UDim2.new(1, -20, 1, -20)
+    ContentPage.ScrollBarThickness = 3
     ContentPage.Visible = false
     
     return TabButton, ContentPage
 end
 
--- Crear los tabs principales
-local FarmingTab, FarmingPage = CreateTab("Farming")
-local TeleportsTab, TeleportsPage = CreateTab("Teleports")
-local PlayerTab, PlayerPage = CreateTab("Player")
-local SettingsTab, SettingsPage = CreateTab("Settings")
-
--- Posicionar los tabs
-FarmingTab.Position = UDim2.new(0, 0, 0, 0)
-TeleportsTab.Position = UDim2.new(0, 0, 0, 30)
-PlayerTab.Position = UDim2.new(0, 0, 0, 60)
-SettingsTab.Position = UDim2.new(0, 0, 0, 90)
+-- Crear los tabs principales con iconos
+local FarmingTab, FarmingPage = CreateTab("Farming", "rbxassetid://7743866529")
+local TeleportsTab, TeleportsPage = CreateTab("Teleports", "rbxassetid://7734053426")
+local PlayerTab, PlayerPage = CreateTab("Player", "rbxassetid://7743867115")
+local SettingsTab, SettingsPage = CreateTab("Settings", "rbxassetid://7734053926")
 
 -- Mostrar la página de Farming por defecto
 FarmingPage.Visible = true
 
 -- Crear contenido para Farming
 local AutoFarmToggle = CreateToggle("Auto Farm", UDim2.new(0, 10, 0, 10))
-local AutoBusoToggle = CreateToggle("Auto Buso", UDim2.new(0, 10, 0, 50))
+local AutoBusoToggle = CreateToggle("Auto Buso", UDim2.new(0, 10, 0, 60))
+local AutoClickToggle = CreateToggle("Auto Click", UDim2.new(0, 10, 0, 110))
+local FastAttackToggle = CreateToggle("Fast Attack", UDim2.new(0, 10, 0, 160))
 AutoFarmToggle.Parent = FarmingPage
 AutoBusoToggle.Parent = FarmingPage
-
--- Crear contenido para Player
-local WalkspeedButton = CreateButton("Walkspeed +50", UDim2.new(0, 10, 0, 10))
-local JumpPowerButton = CreateButton("JumpPower +100", UDim2.new(0, 10, 0, 50))
-WalkspeedButton.Parent = PlayerPage
-JumpPowerButton.Parent = PlayerPage
+AutoClickToggle.Parent = FarmingPage
+FastAttackToggle.Parent = FarmingPage
 
 -- Sistema de cambio de tabs
 local function SwitchTab(tabButton, page)
     tabButton.MouseButton1Click:Connect(function()
         for _, v in pairs(ContentFrame:GetChildren()) do
-            if v:IsA("Frame") and v.Name:find("Page") then
+            if v:IsA("ScrollingFrame") then
                 v.Visible = false
             end
         end
@@ -220,10 +251,14 @@ local function SwitchTab(tabButton, page)
         
         for _, v in pairs(TabsFrame:GetChildren()) do
             if v:IsA("TextButton") then
-                v.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+                TweenService:Create(v, TweenInfo.new(0.2), {
+                    BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+                }):Play()
             end
         end
-        tabButton.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+        TweenService:Create(tabButton, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+        }):Play()
     end)
 end
 
@@ -232,29 +267,65 @@ SwitchTab(TeleportsTab, TeleportsPage)
 SwitchTab(PlayerTab, PlayerPage)
 SwitchTab(SettingsTab, SettingsPage)
 
--- Funcionalidad de los botones
-WalkspeedButton.MouseButton1Click:Connect(function()
-    if Player.Character and Player.Character:FindFirstChild("Humanoid") then
-        Player.Character.Humanoid.WalkSpeed = 50
-    end
-end)
-
-JumpPowerButton.MouseButton1Click:Connect(function()
-    if Player.Character and Player.Character:FindFirstChild("Humanoid") then
-        Player.Character.Humanoid.JumpPower = 100
-    end
-end)
-
--- Tecla para mostrar/ocultar el menú (RightControl)
+-- Tecla para mostrar/ocultar el menú
 UserInputService.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.RightControl then
         MainFrame.Visible = not MainFrame.Visible
     end
 end)
 
--- Notificación de inicio
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "ZEIRO HUB",
-    Text = "Menú cargado! Presiona RightControl",
-    Duration = 5
-})
+-- Notificación de inicio estilo Redz
+local function CreateNotification(title, text, duration)
+    local NotificationFrame = Instance.new("Frame")
+    local UICorner = Instance.new("UICorner")
+    local Title = Instance.new("TextLabel")
+    local Message = Instance.new("TextLabel")
+    
+    NotificationFrame.Name = "Notification"
+    NotificationFrame.Parent = ScreenGui
+    NotificationFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    NotificationFrame.Position = UDim2.new(1, -310, 1, -100)
+    NotificationFrame.Size = UDim2.new(0, 300, 0, 80)
+    
+    UICorner.CornerRadius = UDim.new(0, 8)
+    UICorner.Parent = NotificationFrame
+    
+    Title.Name = "Title"
+    Title.Parent = NotificationFrame
+    Title.BackgroundTransparency = 1
+    Title.Position = UDim2.new(0, 15, 0, 10)
+    Title.Size = UDim2.new(1, -30, 0, 20)
+    Title.Font = Enum.Font.GothamBold
+    Title.Text = title
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 16.000
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    
+    Message.Name = "Message"
+    Message.Parent = NotificationFrame
+    Message.BackgroundTransparency = 1
+    Message.Position = UDim2.new(0, 15, 0, 35)
+    Message.Size = UDim2.new(1, -30, 0, 35)
+    Message.Font = Enum.Font.Gotham
+    Message.Text = text
+    Message.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Message.TextSize = 14.000
+    Message.TextXAlignment = Enum.TextXAlignment.Left
+    Message.TextWrapped = true
+    
+    -- Animación de entrada
+    NotificationFrame.Position = UDim2.new(1, 0, 1, -100)
+    TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart), {
+        Position = UDim2.new(1, -310, 1, -100)
+    }):Play()
+    
+    -- Animación de salida
+    wait(duration)
+    TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart), {
+        Position = UDim2.new(1, 0, 1, -100)
+    }):Play()
+    wait(0.5)
+    NotificationFrame:Destroy()
+end
+
+CreateNotification("ZEIRO HUB", "Script cargado correctamente!\nPresiona RightControl para abrir/cerrar", 5)
