@@ -1,0 +1,45 @@
+-- Script para controlar a Zero en Blox Fruit
+
+-- Configuración
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local zero = character:WaitForChild("Zero")
+
+-- Función para cambiar de arma
+local function changeWeapon(weaponName)
+    local tool = zero:FindFirstChild(weaponName)
+    if tool then
+        tool.Parent = player.Backpack
+        humanoid:EquipTool(tool)
+    else
+        print("Arma no encontrada: " .. weaponName)
+    end
+end
+
+-- Función para usar una habilidad
+local function useAbility(abilityName)
+    local ability = zero:FindFirstChild(abilityName)
+    if ability then
+        ability:Activate()
+    else
+        print("Habilidad no encontrada: " .. abilityName)
+    end
+end
+
+-- Ejemplo de uso
+-- Cambiar a la espada
+changeWeapon("Sword")
+
+-- Usar una habilidad (por ejemplo, "Dash")
+useAbility("Dash")
+
+-- Mover al personaje a una posición específica
+local function moveToPosition(position)
+    humanoid:MoveTo(position)
+    humanoid.MoveToFinished:Wait()
+end
+
+-- Ejemplo de mover a una posición
+local targetPosition = Vector3.new(100, 5, 100) -- Cambia estas coordenadas según tu necesidad
+moveToPosition(targetPosition)
