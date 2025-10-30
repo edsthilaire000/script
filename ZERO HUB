@@ -1,45 +1,191 @@
--- Script para controlar a Zero en Blox Fruit
+-- ZERO Hub - Script para Blox Fruits
+-- By [Tu Nombre]
 
--- Configuración
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local zero = character:WaitForChild("Zero")
+local ZERO_Hub = {
+    Version = "1.0",
+    LastUpdate = "2024"
+}
 
--- Función para cambiar de arma
-local function changeWeapon(weaponName)
-    local tool = zero:FindFirstChild(weaponName)
-    if tool then
-        tool.Parent = player.Backpack
-        humanoid:EquipTool(tool)
-    else
-        print("Arma no encontrada: " .. weaponName)
+-- Servicios
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local TeleportService = game:GetService("TeleportService")
+
+-- Variables
+local Player = Players.LocalPlayer
+local Mouse = Player:GetMouse()
+
+-- Librería GUI
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
+
+-- Crear ventana principal
+local Window = Library:NewWindow("ZERO Hub", "v" .. ZERO_Hub.Version)
+
+-- Tabs principales
+local MainTab = Window:NewSection("Farming")
+local TeleportTab = Window:NewSection("Teleports")
+local PlayerTab = Window:NewSection("Player")
+local MiscTab = Window:NewSection("Miscellaneous")
+
+-- FUNCIONES DE FARMING
+MainTab:CreateToggle("Auto Farm", false, function(State)
+    getgenv().AutoFarm = State
+    
+    if State then
+        coroutine.wrap(function()
+            while getgenv().AutoFarm and wait() do
+                -- Aquí iría la lógica de auto farm
+                pcall(function()
+                    -- Ejemplo básico de auto farm
+                    local Enemies = workspace:FindFirstChild("Enemies")
+                    if Enemies then
+                        for _, Enemy in pairs(Enemies:GetChildren()) do
+                            if Enemy:FindFirstChild("Humanoid") and Enemy.Humanoid.Health > 0 then
+                                -- Lógica de ataque
+                                Player.Character:SetPrimaryPartCFrame(Enemy.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5))
+                                wait(0.2)
+                                -- Simular ataque
+                                if Player.Character:FindFirstChildOfClass("Tool") then
+                                    Player.Character:FindFirstChildOfClass("Tool"):Activate()
+                                end
+                            end
+                        end
+                    end
+                end)
+            end
+        end)()
     end
-end
+end)
 
--- Función para usar una habilidad
-local function useAbility(abilityName)
-    local ability = zero:FindFirstChild(abilityName)
-    if ability then
-        ability:Activate()
-    else
-        print("Habilidad no encontrada: " .. abilityName)
+MainTab:CreateToggle("Auto Buso", false, function(State)
+    getgenv().AutoBuso = State
+    
+    if State then
+        coroutine.wrap(function()
+            while getgenv().AutoBuso and wait(1) do
+                pcall(function()
+                    -- Activar Buso Haki automáticamente
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
+                end)
+            end
+        end)()
     end
+end)
+
+-- TELEPORTS
+local Islands = {
+    "Marine Starter",
+    "Pirate Starter",
+    "Jungle",
+    "Pirate Village",
+    "Desert",
+    "Frozen Village",
+    "Colosseum",
+    "Sky Island 1",
+    "Sky Island 2",
+    "Prison"
+}
+
+for _, Island in pairs(Islands) do
+    TeleportTab:CreateButton("TP to " .. Island, function()
+        -- Aquí irían las coordenadas de cada isla
+        local CFrames = {
+            ["Marine Starter"] = CFrame.new(-2827.99, 48.90, 2093.20),
+            ["Pirate Starter"] = CFrame.new(1099.00, 48.90, 1555.00),
+            -- Agregar más coordenadas...
+        }
+        
+        if CFrames[Island] then
+            Player.Character:SetPrimaryPartCFrame(CFrames[Island])
+        end
+    end)
 end
 
--- Ejemplo de uso
--- Cambiar a la espada
-changeWeapon("Sword")
+-- PLAYER MODIFICATIONS
+PlayerTab:CreateSlider("WalkSpeed", 16, 200, 16, function(Value)
+    pcall(function()
+        Player.Character.Humanoid.WalkSpeed = Value
+    end)
+end)
 
--- Usar una habilidad (por ejemplo, "Dash")
-useAbility("Dash")
+PlayerTab:CreateSlider("JumpPower", 50, 200, 50, function(Value)
+    pcall(function()
+        Player.Character.Humanoid.JumpPower = Value
+    end)
+end)
 
--- Mover al personaje a una posición específica
-local function moveToPosition(position)
-    humanoid:MoveTo(position)
-    humanoid.MoveToFinished:Wait()
-end
+PlayerTab:CreateToggle("Noclip", false, function(State)
+    getgenv().Noclip = State
+    
+    if State then
+        coroutine.wrap(function()
+            while getgenv().Noclip and wait() do
+                pcall(function()
+                    for _, part in pairs(Player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
+                    end
+                end)
+            end
+        end)()
+    end
+end)
 
--- Ejemplo de mover a una posición
-local targetPosition = Vector3.new(100, 5, 100) -- Cambia estas coordenadas según tu necesidad
-moveToPosition(targetPosition)
+-- MISCELÁNEOS
+MiscTab:CreateToggle("Auto Click", false, function(State)
+    getgenv().AutoClick = State
+    
+    if State then
+        coroutine.wrap(function()
+            while getgenv().AutoClick and wait(0.1) do
+                pcall(function()
+                    -- Simular click automático
+                    mouse1click()
+                end)
+            end
+        end)()
+    end
+end)
+
+MiscTab:CreateButton("Rejoin Server", function()
+    TeleportService:Teleport(game.PlaceId, Player)
+end)
+
+MiscTab:CreateButton("Server Hop", function()
+    -- Función para cambiar de servidor
+    local Http = game:GetService("HttpService")
+    local TPS = game:GetService("TeleportService")
+    local Api = "https://games.roblox.com/v1/games/"
+    
+    local _place = game.PlaceId
+    local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=100"
+    
+    function ListServers(cursor)
+        local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+        return Http:JSONDecode(Raw)
+    end
+    
+    local Next; repeat
+        local Servers = ListServers(Next)
+        for i,v in next, Servers.data do
+            if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                TPS:TeleportToPlaceInstance(_place, v.id)
+            end
+        end
+        Next = Servers.nextPageCursor
+    until not Next
+end)
+
+-- ANTI AFK
+local VirtualUser = game:GetService("VirtualUser")
+Player.Idled:connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+-- INICIALIZACIÓN
+print("ZERO Hub v" .. ZERO_Hub.Version .. " loaded successfully!")
+Player:SetAttribute("ZERO_Hub_Loaded", true)
