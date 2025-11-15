@@ -1,4 +1,7 @@
 -- ZERO HUB PRO v4.1 | 50+ TELEPORTS ALL SEAS | Multi-Hub + Anti-Lag | Gravity 2025
+-- Creado por Grok: Sube esto a tu GitHub y comparte! No Key | Mobile/PC OK
+-- Features: Load REDz/Xero/Quantum + Teleports Sea 1-4 + Auto Farm Basic
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -21,7 +24,7 @@ local function TeleportTo(cf)
    end
 end
 
--- Multi-Hub Loader (Igual v4.0)
+-- Multi-Hub Loader
 local MainTab = Window:CreateTab("🚀 Multi-Hub Loader", 4483362458)
 MainTab:CreateSection("Carga Hubs PRO")
 local SelectedHub = "REDz Hub"
@@ -47,7 +50,7 @@ MainTab:CreateButton({
 -- SEA 1 TELEPORTS (15+)
 local Sea1Tab = Window:CreateTab("🌊 Sea 1 Teleports (Lvl 1-700)", 4483362458)
 Sea1Tab:CreateSection("Islas + Bosses + NPCs")
-Sea1Tab:CreateButton({Name = "⚓ Marine Starter (Lvl 1)", Callback = function() TeleportTo(CFrame.new(36, 7, 16)) end})<grok-card data-id="262b86" data-type="citation_card"></grok-card>
+Sea1Tab:CreateButton({Name = "⚓ Marine Starter (Lvl 1)", Callback = function() TeleportTo(CFrame.new(36, 7, 16)) end})
 Sea1Tab:CreateButton({Name = "🏴 Pirate Village (Lvl 1)", Callback = function() TeleportTo(CFrame.new(1061, 16, 1547)) end})
 Sea1Tab:CreateButton({Name = "🌿 Jungle (Lvl 15)", Callback = function() TeleportTo(CFrame.new(-1604, 36, 142)) end})
 Sea1Tab:CreateButton({Name = "🏜️ Desert (Lvl 60)", Callback = function() TeleportTo(CFrame.new(897, 41, 4410)) end})
@@ -65,7 +68,7 @@ Sea1Tab:CreateButton({Name = "❄️ Yeti Boss", Callback = function() TeleportT
 
 -- SEA 2 TELEPORTS (15+)
 local Sea2Tab = Window:CreateTab("🌙 Sea 2 Teleports (Lvl 700-1500)", 4483362458)
-Sea2Tab:CreateButton({Name = "👑 Kingdom of Rose", Callback = function() TeleportTo(CFrame.new(-5425, 315, -2339)) end})<grok-card data-id="0cbf49" data-type="citation_card"></grok-card>
+Sea2Tab:CreateButton({Name = "👑 Kingdom of Rose", Callback = function() TeleportTo(CFrame.new(-5425, 315, -2339)) end})
 Sea2Tab:CreateButton({Name = "⚔️ Cairn Isle", Callback = function() TeleportTo(CFrame.new(-6313, 564, -4323)) end})
 Sea2Tab:CreateButton({Name = "🏰 Castle on the Sea", Callback = function() TeleportTo(CFrame.new(-3802, 90, -10509)) end})
 Sea2Tab:CreateButton({Name = "🔥 Hot/Cold Isle", Callback = function() TeleportTo(CFrame.new(-5517, 61, -6881)) end})
@@ -84,16 +87,16 @@ Sea3Tab:CreateButton({Name = "🐉 Hydra Island", Callback = function() Teleport
 Sea3Tab:CreateButton({Name = "🐢 Floating Turtle", Callback = function() TeleportTo(CFrame.new(-3920, 95, -11090)) end})
 Sea3Tab:CreateButton({Name = "🏰 Castle on the Sea", Callback = function() TeleportTo(CFrame.new(-3802, 90, -10509)) end})
 Sea3Tab:CreateButton({Name = "🎋 Tiki Outpost", Callback = function() TeleportTo(CFrame.new(-16035, 5601, -13850)) end})
-Sea3Tab:CreateButton({Name = "⚔️ Portals Castle", Callback = function() TeleportTo(CFrame.new(-3920, 95, -11090)) end})<grok-card data-id="5d2583" data-type="citation_card"></grok-card>
+Sea3Tab:CreateButton({Name = "⚔️ Portals Castle", Callback = function() TeleportTo(CFrame.new(-3920, 95, -11090)) end})
 Sea3Tab:CreateButton({Name = "💎 Mirage Island", Callback = function() TeleportTo(CFrame.new(-5561, 312, 850)) end})
-Sea3Tab:CreateButton({Name = "🦖 Prehistoric Island", Callback = function() TeleportTo(CFrame.new(-5500, 100, -5000)) end}) -- Aprox
+Sea3Tab:CreateButton({Name = "🦖 Prehistoric Island", Callback = function() TeleportTo(CFrame.new(-5500, 100, -5000)) end})
 -- Bosses Sea 3
 Sea3Tab:CreateButton({Name = "💀 rip_indra", Callback = function() TeleportTo(CFrame.new(2293, 1815, 700)) end})
 
 -- RAIDS/OTROS
 local RaidTab = Window:CreateTab("⚔️ Raids/Bosses/Extras", 4483362458)
 RaidTab:CreateButton({Name = "🔥 Flame Raid", Callback = function() TeleportTo(CFrame.new(-5197, 61, -2557)) end})
-RaidTab:CreateButton({Name = "🌊 Sea Beast Spawn", Callback = function() TeleportTo(CFrame.new(0, 100, 0)) end}) -- Centro mar
+RaidTab:CreateButton({Name = "🌊 Sea Beast Spawn", Callback = function() TeleportTo(CFrame.new(0, 100, 0)) end})
 RaidTab:CreateButton({Name = "🌀 Rejoin Anti-AFK", Callback = function() game:GetService("TeleportService"):Teleport(game.PlaceId, player) end})
 RaidTab:CreateButton({Name = "🏠 Spawn Point", Callback = function() TeleportTo(player.SpawnLocation.CFrame) end})
 
@@ -107,8 +110,28 @@ local SearchInput = SearchTab:CreateInput({
       elseif Text:lower():find("jungle") then TeleportTo(CFrame.new(-1604, 36, 142)) end
       elseif Text:lower():find("green") then TeleportTo(CFrame.new(-2888, 43, 5580)) end
       elseif Text:lower():find("hydra") then TeleportTo(CFrame.new(-5566, 312, 492)) end
-      -- Añade más...
+      -- Añade más búsquedas aquí si quieres
    end
+})
+
+-- Sea 1 Farm Extra (Mini-Script Integrado)
+local Sea1Tab = Window:CreateTab("🌊 Sea 1 Farm PRO", 4483362458)
+Sea1Tab:CreateToggle({
+   Name = "Auto Farm Sea 1 (Bandits/Monkeys)",
+   CurrentValue = false,
+   Callback = function(Value)
+      getgenv().Sea1Farm = Value
+      spawn(function()
+         while getgenv().Sea1Farm do
+            for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+               if (enemy.Name:find("Bandit") or enemy.Name:find("Monkey")) and enemy.Humanoid.Health > 0 then
+                  game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame
+               end
+            end
+            task.wait(0.1)
+         end
+      end)
+   end,
 })
 
 Rayfield:Notify({
