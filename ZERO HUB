@@ -1,34 +1,76 @@
--- 🌟 REDZ HUB CLONE v7 (Menú Exacto + Farm TODO - 0 Lag FPS 999)
-local p=game.Players.LocalPlayer;local c=p.CharacterAdded:Wait();local h=c:WaitForChild("Humanoid");local r=c:WaitForChild("HumanoidRootPart");local RS=game:GetService("ReplicatedStorage");local WS=game:GetService("Workspace");setfpscap(999)
-local TPs={Sea1=CFrame.new(-3032,73,951),Sea2=CFrame.new(-5412,314,-2400),Sea3=CFrame.new(-7950,5600,1020),Mirage=CFrame.new(-5567,312,-4666),GP=CFrame.new(1480,68,-219),Castle=CFrame.new(-5074,299,-7071),Mammoth=CFrame.new(15000,100,-5000),Raid=CFrame.new(-5000,100,-2000),Dojo=CFrame.new(2000,50,1000),CDK=CFrame.new(-500,100,500)}
-getgenv().S={FN=false,FQ=false,FB=false,FM=false,FR=false,FS=false,FSea=false,FV4=false,FVol=false,FCDK=false,FH=false,FRH=false,FAA=false,G=false,ESP=false,IJ=false,IY=false,Sp=200,Jp=100,FPS=true,AS="Melee",T="Pirates"}
--- 🔄 FARM TODO (Como Redz: Nivel/Quest/Boss/Mastery/Raid/Fruit/Sea/V4/Volcano/CDK/Haki/Awaken)
-spawn(function()while wait(.08)do 
-    if S.FN or S.FQ then for _,v in pairs(WS.Enemies:GetChildren())do if v:FindFirstChild("Humanoid")and v.Humanoid.Health>0 then r.CFrame=v.HumanoidRootPart.CFrame*CFrame.new(0,10,0);v.Humanoid.Health=0;RS.Remotes.CommF_:InvokeServer("StartQuest")end end end
-    if S.FB then for _,v in pairs(WS.Bosses:GetChildren())do if v:FindFirstChild("HumanoidRootPart")then r.CFrame=v.HumanoidRootPart.CFrame*CFrame.new(0,10,0);v.Humanoid.Health=0 end end end
-    if S.FM then RS.Remotes.CommF_:InvokeServer("AddPoint",S.AS,1)end
-    if S.FR then RS.Remotes.CommF_:InvokeServer("Raid","Flame")end
-end end)
-spawn(function()while wait(1)do 
-    if S.FS then for _,v in pairs(WS:GetChildren())do local n=v.Name:lower()if n:find("mammoth")or n:find("dragon")or n:find("leopard")or n:find("kitsune")then firetouchinterest(r,v.Handle,0);firetouchinterest(r,v.Handle,1)end end end
-    if S.FSea then RS.Remotes.CommF_:InvokeServer("SeaBeast")end
-    if S.FV4 then RS.Remotes.CommF_:InvokeServer("RaceV4")end
-    if S.FVol then r.CFrame=TPs.Castle end
-    if S.FCDK then RS.Remotes.CommF_:InvokeServer("CursedDualKatana")end
-    if S.FH then RS.Remotes.CommF_:InvokeServer("BuyHaki")end
-    if S.FRH then RS.Remotes.CommF_:InvokeServer("RainbowHaki")end
-    if S.FAA then RS.Remotes.CommF_:InvokeServer("AwakenFruit")end
-end end)
--- ⚡ HACKS (God/ESP/Inf/Speed)
-game:GetService("RunService").Heartbeat:Connect(function()if S.G then h.Health=h.MaxHealth end;h.WalkSpeed=S.Sp;h.JumpPower=S.Jp or(S.IJ and 999);if S.IY then h.Energy=100 end;if S.FPS then setfpscap(999)end;if S.ESP then for _,pl in pairs(game.Players:GetPlayers())do if pl~=p and pl.Character then local bb=Instance.new("BillboardGui",pl.Character.Head);bb.Size=UDim2.new(0,100,0,50);bb.Adornee=pl.Character.Head;local t=Instance.new("TextLabel",bb);t.Text=pl.Name.."[HP:"..math.floor(pl.Character.Humanoid.Health).."]";t.Size=UDim2.new(1,0,1,0);t.BackgroundTransparency=1;t.TextColor3=Color3.new(1,0,0)end end end end)
--- 🎮 MENÚ COMO REDZ HUB (Tabs: Farm/Combat/TP/Extra - Simple 0 Lag)
-local R=loadstring(game:HttpGet('https://sirius.menu/rayfield'))();local W=R:CreateWindow({Name="🌟 REDZ HUB v7 CLONE",LoadingTitle="Cargando Farm...",ConfigurationSaving={Enabled=true,FolderName="RedzClone"},KeySystem=false})
-local FarmTab=W:CreateTab("🚀 Farm",4483362458);FarmTab:CreateToggle({Name="Auto Farm Nivel/Quest",Flag="FN",Callback=function(v)S.FN=v end});FarmTab:CreateToggle({Name="Auto Boss",Flag="FB",Callback=function(v)S.FB=v end});FarmTab:CreateToggle({Name="Mastery/Stats",Flag="FM",Callback=function(v)S.FM=v end});FarmTab:CreateDropdown({Name="Stats",Options={"Melee","Defense","Sword","Gun","Fruit"},CurrentOption="Melee",Flag="AS",Callback=function(o)S.AS=o end});FarmTab:CreateToggle({Name="Auto Raid",Flag="FR",Callback=function(v)S.FR=v end})
-local FruitTab=W:CreateTab("🍎 Fruit/Sea",981064026);FruitTab:CreateToggle({Name="Fruit Sniper (Mammoth/Dragon)",Flag="FS",Callback=function(v)S.FS=v end});FruitTab:CreateToggle({Name="Sea Events/Volcano",Flag="FSea",Callback=function(v)S.FSea=v end});FruitTab:CreateToggle({Name="V4 Race",Flag="FV4",Callback=function(v)S.FV4=v end})
-local TPTab=W:CreateTab("🗺️ Teleports",10734973434);for n,cf in pairs(TPs)do TPTab:CreateButton({Name="TP "..n,Callback=function()r.CFrame=cf end})end;TPTab:CreateButton({Name="Server Hop",Callback=function()loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/serverhop.lua"))()end})
-local CombatTab=W:CreateTab("⚔️ Combat",10734973420);CombatTab:CreateToggle({Name="God Mode",Flag="G",Callback=function(v)S.G=v end});CombatTab:CreateToggle({Name="ESP Players",Flag="ESP",Callback=function(v)S.ESP=v end});CombatTab:CreateToggle({Name="Inf Jump",Flag="IJ",Callback=function(v)S.IJ=v end});CombatTab:CreateToggle({Name="Inf Energy",Flag="IY",Callback=function(v)S.IY=v end});CombatTab:CreateSlider({Name="Speed",Range={16,500},Increment=10,CurrentValue=200,Flag="Sp",Callback=function(v)S.Sp=v end});CombatTab:CreateSlider({Name="Jump",Range={50,200},Increment=10,CurrentValue=100,Flag="Jp",Callback=function(v)S.Jp=v end})
-local ExtraTab=W:CreateTab("🌈 Extras",10734973421);ExtraTab:CreateToggle({Name="FPS Boost 999",Flag="FPS",Callback=function(v)S.FPS=v end});ExtraTab:CreateToggle({Name="Auto Haki",Flag="FH",Callback=function(v)S.FH=v end});ExtraTab:CreateToggle({Name="Rainbow Haki",Flag="FRH",Callback=function(v)S.FRH=v end});ExtraTab:CreateToggle({Name="Auto CDK",Flag="FCDK",Callback=function(v)S.FCDK=v end});ExtraTab:CreateToggle({Name="Auto Awaken",Flag="FAA",Callback=function(v)S.FAA=v end});ExtraTab:CreateDropdown({Name="Team",Options={"Pirates","Marines"},CurrentOption="Pirates",Callback=function(o)S.T=o;RS.Remotes.CommF_:InvokeServer("SetTeam",o)end});ExtraTab:CreateButton({Name="Anti-AFK",Callback=function()spawn(function()while wait(250)do RS.DefaultChatSystemChatEvents.SayMessageRequest:FireServer("Redz Hub Farm! 🌟","All")end end)end})
-R:Notify({Title="¡REDZ HUB CLONE CARGADO! ✅",Content="Menú Exacto + Farm TODO | 3M+ XP/h 0 Lag 🤑",Duration=5})
--- Team Auto
-RS.Remotes.CommF_:InvokeServer("SetTeam",S.T)
-print("🌟 REDZ HUB v7 LISTO! Farmea TODO como el original 😎")
+-- Script básico Auto Farm para Blox Fruits (Noviembre 2025)
+-- Creado con Rayfield UI (interfaz gráfica)
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))() <grok-card data-id="4620c4" data-type="citation_card"></grok-card>
+
+local Window = Rayfield:CreateWindow({
+    Name = "Mi Script Blox Fruits",
+    LoadingTitle = "Cargando...",
+    LoadingSubtitle = "por Grok",
+    ConfigurationSaving = { Enabled = true, FolderName = "BloxFruitsGrok" }
+})
+
+local MainTab = Window:CreateTab("Auto Farm", nil)
+local FarmSection = MainTab:CreateSection("Farming")
+
+-- Función básica de Auto Farm (mata enemigos cercanos)
+local AutoFarm = false
+MainTab:CreateToggle({
+    Name = "Auto Farm Niveles",
+    CurrentValue = false,
+    Callback = function(Value)
+        AutoFarm = Value
+        spawn(function()
+            while AutoFarm do
+                local player = game.Players.LocalPlayer
+                local character = player.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+                        if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                            character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame
+                            game:GetService("VirtualUser"):CaptureController()
+                            game:GetService("VirtualUser"):ClickButton1(Vector2.new())
+                        end
+                    end
+                end
+                wait(0.1)
+            end
+        end)
+    end
+})
+
+local TeleportSection = MainTab:CreateSection("Teleports")
+MainTab:CreateButton({
+    Name = "Teleport a Marineford (Farm inicial)",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-2888, 43, 5580) -- Coordenadas aprox.
+    end
+})
+
+MainTab:CreateButton({
+    Name = "Reunirse (anti-AFK)",
+    Callback = function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+    end
+})
+
+-- Tab para más funciones
+local CombatTab = Window:CreateTab("Combate")
+CombatTab:CreateToggle({
+    Name = "Kill Aura (Mata cerca)",
+    CurrentValue = false,
+    Callback = function(Value)
+        _G.KillAura = Value
+        spawn(function()
+            while _G.KillAura do
+                for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+                    if enemy:FindFirstChild("HumanoidRootPart") then
+                        local args = {Position = enemy.HumanoidRootPart.Position}
+                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("1", "1") -- Ataque simulado
+                    end
+                end
+                wait(0.2)
+            end
+        end)
+    end
+})
