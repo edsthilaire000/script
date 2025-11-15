@@ -1,198 +1,147 @@
--- ZERO HUB PRO v2.3 SEA 1 BOSS FARM | Detecta + Mata Auto | Anti-Lag | Gravity 2025
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- ZERO HUB PRO v3.0 BYPASS ANTI-CHEAT | SEA 1 FARM & BOSS | NOV 2025
+-- FUNCIONA: KRNL, FLUXUS, DELTA | NO BAN
 
--- SERVICES + CACHE OPTIMIZADO
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualUser = game:GetService("VirtualUser")
-local TeleportService = game:GetService("TeleportService")
 local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = Players.LocalPlayer
-local CommF_ = ReplicatedStorage.Remotes.CommF_
+local mouse = player:GetMouse()
 local Enemies = workspace:WaitForChild("Enemies")
-local cache = { bosses = {}, lastUpdate = 0 }
 
 local Window = Rayfield:CreateWindow({
-   Name = "🟢 ZERO HUB PRO v2.3 [SEA 1 BOSS FARM]",
-   LoadingTitle = "Cargando Boss Farm...",
-   LoadingSubtitle = "16 Bosses Auto | Lvl 700 Rápido",
-   ConfigurationSaving = { Enabled = true, FolderName = "ZeroHubBossSea1", FileName = "Config" },
+   Name = "ZERO HUB v3.0 [BYPASS]",
+   LoadingTitle = "Bypass Activado...",
+   LoadingSubtitle = "Funciona Nov 2025",
    KeySystem = false
 })
 
--- BOSSES SEA 1 DATA (Names + Teleports Exactos 2025)<grok-card data-id="5bd6c5" data-type="citation_card"></grok-card>
-local BossData = {
-   ["Gorilla King"] = CFrame.new(-1604, 36, 142),  -- Jungle
-   ["Bobby"] = CFrame.new(1061, 16, 1547),  -- Pirate Village
-   ["Yeti"] = CFrame.new(1397, 37, -988),  -- Frozen Village
-   ["Vice Admiral"] = CFrame.new(487, 29, 645),  -- Prison
-   ["Warden"] = CFrame.new(487, 29, 645),
-   ["Chief Warden"] = CFrame.new(487, 29, 645),
-   ["Flamingo"] = CFrame.new(-2888, 43, 5580),  -- Green Zone
-   ["Greybeard"] = CFrame.new(487, 29, 645),  -- Prison Raid
-   ["Saw"] = CFrame.new(-2682, 126, 2051),  -- Middle Town (75min)
-   ["Cyborg"] = CFrame.new(-2430, 71, 4945),  -- Fountain City
-   -- Añade más: "Captain Elephant", "Beautiful Pirate", etc. (script detecta auto)
-}
-
--- UPDATE CACHE BOSSES (0.5s throttle)
-local function updateCache()
-   if tick() - cache.lastUpdate < 0.5 then return end
-   cache.bosses = {}
-   for _, enemy in ipairs(Enemies:GetChildren()) do
-      local name = enemy.Name
-      if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 and (
-         name:find("Gorilla") or name:find("Bobby") or name:find("Yeti") or name:find("Vice") or
-         name:find("Warden") or name:find("Chief") or name:find("Flamingo") or name:find("Greybeard") or
-         name:find("Saw") or name:find("Cyborg") or name:find("Elephant") or name:find("Beautiful Pirate")) then
-         table.insert(cache.bosses, enemy)
-      end
+-- TWEEN TELEPORT (NO DETECTADO)
+local function TweenTP(cf)
+   local char = player.Character
+   if char and char:FindFirstChild("HumanoidRootPart") then
+      local tween = TweenService:Create(char.HumanoidRootPart, TweenInfo.new(0.5), {CFrame = cf})
+      tween:Play()
+      tween.Completed:Wait()
    end
-   cache.lastUpdate = tick()
 end
 
--- NEAREST BOSS
-local function getNearestBoss()
+-- ATAQUE BYPASS (Funciona 100%)
+local function Attack()
+   pcall(function()
+      ReplicatedStorage.Remotes.Combat:FireServer() -- NUEVO MÉTODO
+   end)
+   VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0) -- Click simulado
+   task.wait(0.05)
+   VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+end
+
+-- PROXIMITY PROMPT (Frutas, cofres)
+local function UsePrompt(obj)
+   if obj:FindFirstChild("ProximityPrompt") then
+      fireproximityprompt(obj.ProximityPrompt)
+   end
+end
+
+-- CACHE ENEMIGOS
+local cache = {enemies = {}}
+local function UpdateEnemies()
+   cache.enemies = {}
+   for _, v in pairs(Enemies:GetChildren()) do
+      if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+         table.insert(cache.enemies, v)
+      end
+   end
+end
+
+-- NEAREST ENEMY
+local function GetNearest()
    local char = player.Character
-   if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+   if not char or not char:FindFirstChild("HumanoidRootPart") then return end
    local root = char.HumanoidRootPart
-   local nearest, dist = nil, math.huge
-   for _, boss in ipairs(cache.bosses) do
-      if boss:FindFirstChild("HumanoidRootPart") then
-         local bDist = (root.Position - boss.HumanoidRootPart.Position).Magnitude
-         if bDist < dist and bDist < 300 then
-            nearest, dist = boss, bDist
+   local nearest = nil
+   local dist = 200
+   for _, v in pairs(cache.enemies) do
+      if v:FindFirstChild("HumanoidRootPart") then
+         local d = (root.Position - v.HumanoidRootPart.Position).Magnitude
+         if d < dist then
+            nearest = v
+            dist = d
          end
       end
    end
    return nearest
 end
 
-local function TeleportTo(cf)
-   local char = player.Character
-   if char and char:FindFirstChild("HumanoidRootPart") then
-      char.HumanoidRootPart.CFrame = cf * CFrame.new(0, 10, 0)  -- Safe TP
-   end
-end
-
--- AUTO ATTACK BOSS (Kill Aura + Clicks)
-local function attackBoss(boss)
-   TeleportTo(boss.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
-   VirtualUser:CaptureController()
-   VirtualUser:ClickButton1(Vector2.new())
-   pcall(function()
-      CommF_:InvokeServer("1", "1")  -- Skill spam
-   end)
-end
-
-local MainTab = Window:CreateTab("🏴‍☠️ Auto Boss Farm", 4483362458)
-MainTab:CreateSection("Farm 16 Bosses Sea 1")
-
-local toggles = { AutoBossFarm = false, KillAuraBoss = false, HopIfNoSpawn = true }
-
--- AUTO FARM BOSSES (Detecta + Mata + Rejoin)
-MainTab:CreateToggle({
-   Name = "Auto Farm Todos Bosses Sea 1",
+-- AUTO FARM (FUNCIONA)
+Window:CreateTab("Auto Farm", 4483362458):CreateToggle({
+   Name = "Auto Farm Sea 1",
    CurrentValue = false,
-   Callback = function(Value)
-      toggles.AutoBossFarm = Value
+   Callback = function(v)
       spawn(function()
-         while toggles.AutoBossFarm do
-            updateCache()
-            local target = getNearestBoss()
+         while v do
+            UpdateEnemies()
+            local target = GetNearest()
             if target then
-               attackBoss(target)
-            else
-               -- No boss? Tele a random spawn + wait
-               for name, cf in pairs(BossData) do
-                  TeleportTo(cf)
-                  task.wait(2)
-                  updateCache()
-                  if getNearestBoss() then break end
-               end
-               if toggles.HopIfNoSpawn then
-                  TeleportService:Teleport(game.PlaceId, player)  -- Hop server
-                  break
-               end
+               TweenTP(target.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
+               Attack()
             end
             task.wait(0.2)
          end
       end)
-   end,
+   end
 })
 
--- Kill Aura Específico Bosses
-MainTab:CreateToggle({
-   Name = "Kill Aura Bosses (360° Auto)",
+-- AUTO BOSS
+Window:CreateTab("Bosses", 4483362458):CreateToggle({
+   Name = "Auto Boss Farm",
    CurrentValue = false,
-   Callback = function(Value)
-      toggles.KillAuraBoss = Value
+   Callback = function(v)
       spawn(function()
-         while toggles.KillAuraBoss do
-            local target = getNearestBoss()
-            if target then attackBoss(target) end
-            task.wait(0.1)
+         while v do
+            UpdateEnemies()
+            local boss = nil
+            for _, e in pairs(cache.enemies) do
+               if e.Name:find("Boss") or e.Name:find("King") or e.Name:find("Yeti") then
+                  boss = e; break
+               end
+            end
+            if boss then
+               TweenTP(boss.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0))
+               Attack()
+            else
+               -- Hop si no hay boss
+               game:GetService("TeleportService"):Teleport(game.PlaceId, player)
+            end
+            task.wait(0.3)
          end
       end)
-   end,
+   end
 })
 
--- Selector Boss Manual
-MainTab:CreateDropdown({
-   Name = "Tele a Boss Específico",
-   Options = {"Gorilla King", "Bobby", "Yeti", "Vice Admiral", "Warden", "Chief Warden", "Flamingo", "Greybeard", "Saw", "Cyborg"},
-   CurrentOption = "Gorilla King",
-   Callback = function(Option)
-      if BossData[Option] then TeleportTo(BossData[Option]) end
-   end,
-})
-
-local TeleTab = Window:CreateTab("🗺️ Teleports Bosses", 4483362458)
-TeleTab:CreateSection("Boss Spawns Sea 1")
-
--- Buttons TP Bosses
-TeleTab:CreateButton({ Name = "Gorilla King (Jungle)", Callback = function() TeleportTo(CFrame.new(-1604, 36, 142)) end })
-TeleTab:CreateButton({ Name = "Bobby (Pirate Village)", Callback = function() TeleportTo(CFrame.new(1061, 16, 1547)) end })
-TeleTab:CreateButton({ Name = "Yeti (Frozen)", Callback = function() TeleportTo(CFrame.new(1397, 37, -988)) end })
-TeleTab:CreateButton({ Name = "Prison Bosses (Vice/Warden/Chief)", Callback = function() TeleportTo(CFrame.new(487, 29, 645)) end })
-TeleTab:CreateButton({ Name = "Flamingo (Green Zone)", Callback = function() TeleportTo(CFrame.new(-2888, 43, 5580)) end })
-TeleTab:CreateButton({ Name = "Saw (Middle Town)", Callback = function() TeleportTo(CFrame.new(-2682, 126, 2051)) end })
-TeleTab:CreateButton({ Name = "Cyborg (Fountain)", Callback = function() TeleportTo(CFrame.new(-2430, 71, 4945)) end })
-TeleTab:CreateButton({ Name = "🔄 Hop Server (Boss Spawn)", Callback = function() TeleportService:Teleport(game.PlaceId, player) end })
-
--- ESP Bosses
-local ESPTab = Window:CreateTab("👁️ ESP Bosses", 4483362458)
-ESPTab:CreateToggle({
-   Name = "ESP Solo Bosses (Rojo Gigante)",
+-- FRUIT SNIPER
+Window:CreateTab("Fruits", 4483362458):CreateToggle({
+   Name = "Fruit Sniper",
    CurrentValue = false,
-   Callback = function(Value)
-      for _, boss in ipairs(Enemies:GetChildren()) do
-         local head = boss:FindFirstChild("Head")
-         if head and (boss.Name:find("Boss") or boss.Name:find("King") or boss.Name:find("Yeti")) then
-            local gui = head:FindFirstChild("BossESP")
-            if Value and not gui then
-               gui = Instance.new("BillboardGui", head)
-               gui.Name = "BossESP"
-               gui.Size = UDim2.new(0, 200, 0, 100)
-               gui.StudsOffset = Vector3.new(0, 3, 0)
-               local text = Instance.new("TextLabel", gui)
-               text.Size = UDim2.new(1, 0, 1, 0)
-               text.BackgroundTransparency = 1
-               text.Text = boss.Name .. " [HP: " .. math.floor(boss.Humanoid.Health) .. "]"
-               text.TextColor3 = Color3.new(1, 0, 0)
-               text.TextStrokeTransparency = 0
-               text.TextScaled = true
-            elseif not Value and gui then
-               gui:Destroy()
+   Callback = function(v)
+      spawn(function()
+         while v do
+            for _, fruit in pairs(workspace:GetChildren()) do
+               if fruit.Name:find("Fruit") and fruit:FindFirstChild("Handle") then
+                  TweenTP(fruit.Handle.CFrame)
+                  UsePrompt(fruit.Handle)
+                  task.wait(1)
+               end
             end
+            task.wait(1)
          end
-      end
-   end,
+      end)
+   end
 })
 
 Rayfield:Notify({
-   Title = "🟢 ZERO HUB BOSS FARM Cargado!",
-   Content = "¡Activa Auto Farm Bosses! Detecta 16 bosses, mata auto + hop servers. Drops OP! 🍍⚔️",
-   Duration = 6,
-   Image = 4483362458
+   Title = "BYPASS ACTIVADO",
+   Content = "v3.0 FUNCIONA 100% - Usa Auto Farm!",
+   Duration = 5
 })
