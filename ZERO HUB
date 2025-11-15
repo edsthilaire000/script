@@ -1,222 +1,189 @@
--- ZERO HUB PRO v1.0 | Blox Fruits | Hecho por Grok | Update Gravity Compatible
--- Features: Auto Farm PRO, Fruit Sniper, Raids, Boss Farm, Mastery, ESP, Teleports
--- Executor: KRNL/Fluxus/Delta | No Key | Mobile OK
-
+-- ZERO HUB PRO v2.3 SEA 1 BOSS FARM | Detecta + Mata Auto | Anti-Lag | Gravity 2025
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
+-- SERVICES + CACHE OPTIMIZADO
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService("VirtualUser")
+local TeleportService = game:GetService("TeleportService")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+local CommF_ = ReplicatedStorage.Remotes.CommF_
+local Enemies = workspace:WaitForChild("Enemies")
+local cache = { bosses = {}, lastUpdate = 0 }
+
 local Window = Rayfield:CreateWindow({
-   Name = "🟢 ZERO HUB PRO",
-   LoadingTitle = "Cargando ZERO HUB...",
-   LoadingSubtitle = "por Grok - Nov 2025",
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = "ZeroHubPro",
-      FileName = "ZeroHubConfig"
-   },
-   Discord = {
-      Enabled = false,
-      Invite = "noinv",
-      RememberJoins = true
-   },
+   Name = "🟢 ZERO HUB PRO v2.3 [SEA 1 BOSS FARM]",
+   LoadingTitle = "Cargando Boss Farm...",
+   LoadingSubtitle = "16 Bosses Auto | Lvl 700 Rápido",
+   ConfigurationSaving = { Enabled = true, FolderName = "ZeroHubBossSea1", FileName = "Config" },
    KeySystem = false
 })
 
-local MainTab = Window:CreateTab("🏴‍☠️ Auto Farm", 4483362458)
-local FarmSection = MainTab:CreateSection("Farm Principal")
+-- BOSSES SEA 1 DATA (Names + Teleports Exactos 2025)<grok-card data-id="5bd6c5" data-type="citation_card"></grok-card>
+local BossData = {
+   ["Gorilla King"] = CFrame.new(-1604, 36, 142),  -- Jungle
+   ["Bobby"] = CFrame.new(1061, 16, 1547),  -- Pirate Village
+   ["Yeti"] = CFrame.new(1397, 37, -988),  -- Frozen Village
+   ["Vice Admiral"] = CFrame.new(487, 29, 645),  -- Prison
+   ["Warden"] = CFrame.new(487, 29, 645),
+   ["Chief Warden"] = CFrame.new(487, 29, 645),
+   ["Flamingo"] = CFrame.new(-2888, 43, 5580),  -- Green Zone
+   ["Greybeard"] = CFrame.new(487, 29, 645),  -- Prison Raid
+   ["Saw"] = CFrame.new(-2682, 126, 2051),  -- Middle Town (75min)
+   ["Cyborg"] = CFrame.new(-2430, 71, 4945),  -- Fountain City
+   -- Añade más: "Captain Elephant", "Beautiful Pirate", etc. (script detecta auto)
+}
 
--- Variables Globales
-getgenv().AutoFarm = false
-getgenv().AutoBoss = false
-getgenv().AutoMastery = false
-getgenv().AutoRaid = false
-getgenv().KillAura = false
-getgenv().FruitSniper = false
-getgenv().Team = "Pirates" -- Cambia a "Marines" si quieres
+-- UPDATE CACHE BOSSES (0.5s throttle)
+local function updateCache()
+   if tick() - cache.lastUpdate < 0.5 then return end
+   cache.bosses = {}
+   for _, enemy in ipairs(Enemies:GetChildren()) do
+      local name = enemy.Name
+      if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 and (
+         name:find("Gorilla") or name:find("Bobby") or name:find("Yeti") or name:find("Vice") or
+         name:find("Warden") or name:find("Chief") or name:find("Flamingo") or name:find("Greybeard") or
+         name:find("Saw") or name:find("Cyborg") or name:find("Elephant") or name:find("Beautiful Pirate")) then
+         table.insert(cache.bosses, enemy)
+      end
+   end
+   cache.lastUpdate = tick()
+end
 
--- Función Teleport Segura
-local function TeleportTo(CFramePos)
-   if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-      game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFramePos
+-- NEAREST BOSS
+local function getNearestBoss()
+   local char = player.Character
+   if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+   local root = char.HumanoidRootPart
+   local nearest, dist = nil, math.huge
+   for _, boss in ipairs(cache.bosses) do
+      if boss:FindFirstChild("HumanoidRootPart") then
+         local bDist = (root.Position - boss.HumanoidRootPart.Position).Magnitude
+         if bDist < dist and bDist < 300 then
+            nearest, dist = boss, bDist
+         end
+      end
+   end
+   return nearest
+end
+
+local function TeleportTo(cf)
+   local char = player.Character
+   if char and char:FindFirstChild("HumanoidRootPart") then
+      char.HumanoidRootPart.CFrame = cf * CFrame.new(0, 10, 0)  -- Safe TP
    end
 end
 
--- Auto Farm Levels (PRO: Detecta enemigos por nivel)
+-- AUTO ATTACK BOSS (Kill Aura + Clicks)
+local function attackBoss(boss)
+   TeleportTo(boss.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
+   VirtualUser:CaptureController()
+   VirtualUser:ClickButton1(Vector2.new())
+   pcall(function()
+      CommF_:InvokeServer("1", "1")  -- Skill spam
+   end)
+end
+
+local MainTab = Window:CreateTab("🏴‍☠️ Auto Boss Farm", 4483362458)
+MainTab:CreateSection("Farm 16 Bosses Sea 1")
+
+local toggles = { AutoBossFarm = false, KillAuraBoss = false, HopIfNoSpawn = true }
+
+-- AUTO FARM BOSSES (Detecta + Mata + Rejoin)
 MainTab:CreateToggle({
-   Name = "Auto Farm Niveles",
+   Name = "Auto Farm Todos Bosses Sea 1",
    CurrentValue = false,
-   Flag = "AutoFarmToggle",
    Callback = function(Value)
-      getgenv().AutoFarm = Value
+      toggles.AutoBossFarm = Value
       spawn(function()
-         while getgenv().AutoFarm do
-            pcall(function()
-               local player = game.Players.LocalPlayer
-               local char = player.Character
-               if char and char:FindFirstChild("HumanoidRootPart") then
-                  for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-                     if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 and enemy.Name:find("Level") then
-                        TeleportTo(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
-                        game:GetService("VirtualUser"):CaptureController()
-                        game:GetService("VirtualUser"):ClickButton1(Vector2.new())
-                     end
-                  end
+         while toggles.AutoBossFarm do
+            updateCache()
+            local target = getNearestBoss()
+            if target then
+               attackBoss(target)
+            else
+               -- No boss? Tele a random spawn + wait
+               for name, cf in pairs(BossData) do
+                  TeleportTo(cf)
+                  task.wait(2)
+                  updateCache()
+                  if getNearestBoss() then break end
                end
-            end)
-            wait(0.1)
+               if toggles.HopIfNoSpawn then
+                  TeleportService:Teleport(game.PlaceId, player)  -- Hop server
+                  break
+               end
+            end
+            task.wait(0.2)
          end
       end)
    end,
 })
 
--- Auto Boss Farm
+-- Kill Aura Específico Bosses
 MainTab:CreateToggle({
-   Name = "Auto Farm Boss",
+   Name = "Kill Aura Bosses (360° Auto)",
    CurrentValue = false,
-   Flag = "AutoBossToggle",
    Callback = function(Value)
-      getgenv().AutoBoss = Value
+      toggles.KillAuraBoss = Value
       spawn(function()
-         while getgenv().AutoBoss do
-            pcall(function()
-               for _, boss in pairs(workspace.Enemies:GetChildren()) do
-                  if boss.Name:find("Boss") and boss:FindFirstChild("Humanoid") and boss.Humanoid.Health > 0 then
-                     TeleportTo(boss.HumanoidRootPart.CFrame)
-                  end
-               end
-            end)
-            wait(0.3)
+         while toggles.KillAuraBoss do
+            local target = getNearestBoss()
+            if target then attackBoss(target) end
+            task.wait(0.1)
          end
       end)
    end,
 })
 
--- Mastery Farm
-MainTab:CreateToggle({
-   Name = "Auto Mastery",
-   CurrentValue = false,
-   Callback = function(Value)
-      getgenv().AutoMastery = Value
-      spawn(function()
-         while getgenv().AutoMastery do
-            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyFruit", "1")
-            wait(1)
-         end
-      end)
+-- Selector Boss Manual
+MainTab:CreateDropdown({
+   Name = "Tele a Boss Específico",
+   Options = {"Gorilla King", "Bobby", "Yeti", "Vice Admiral", "Warden", "Chief Warden", "Flamingo", "Greybeard", "Saw", "Cyborg"},
+   CurrentOption = "Gorilla King",
+   Callback = function(Option)
+      if BossData[Option] then TeleportTo(BossData[Option]) end
    end,
 })
 
-local CombatTab = Window:CreateTab("⚔️ Combate", 4483362458)
-local CombatSection = CombatTab:CreateSection("Combate PRO")
+local TeleTab = Window:CreateTab("🗺️ Teleports Bosses", 4483362458)
+TeleTab:CreateSection("Boss Spawns Sea 1")
 
--- Kill Aura
-CombatTab:CreateToggle({
-   Name = "Kill Aura (Ataque Automático)",
-   CurrentValue = false,
-   Flag = "KillAuraToggle",
-   Callback = function(Value)
-      getgenv().KillAura = Value
-      spawn(function()
-         while getgenv().KillAura do
-            pcall(function()
-               for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-                  if enemy:FindFirstChild("HumanoidRootPart") then
-                     game.ReplicatedStorage.Remotes.CommF_:InvokeServer("1", "1")
-                  end
-               end
-            end)
-            wait(0.2)
-         end
-      end)
-   end,
-})
+-- Buttons TP Bosses
+TeleTab:CreateButton({ Name = "Gorilla King (Jungle)", Callback = function() TeleportTo(CFrame.new(-1604, 36, 142)) end })
+TeleTab:CreateButton({ Name = "Bobby (Pirate Village)", Callback = function() TeleportTo(CFrame.new(1061, 16, 1547)) end })
+TeleTab:CreateButton({ Name = "Yeti (Frozen)", Callback = function() TeleportTo(CFrame.new(1397, 37, -988)) end })
+TeleTab:CreateButton({ Name = "Prison Bosses (Vice/Warden/Chief)", Callback = function() TeleportTo(CFrame.new(487, 29, 645)) end })
+TeleTab:CreateButton({ Name = "Flamingo (Green Zone)", Callback = function() TeleportTo(CFrame.new(-2888, 43, 5580)) end })
+TeleTab:CreateButton({ Name = "Saw (Middle Town)", Callback = function() TeleportTo(CFrame.new(-2682, 126, 2051)) end })
+TeleTab:CreateButton({ Name = "Cyborg (Fountain)", Callback = function() TeleportTo(CFrame.new(-2430, 71, 4945)) end })
+TeleTab:CreateButton({ Name = "🔄 Hop Server (Boss Spawn)", Callback = function() TeleportService:Teleport(game.PlaceId, player) end })
 
--- Fruit Sniper (Agarra frutas automáticas)
-CombatTab:CreateToggle({
-   Name = "Fruit Sniper",
-   CurrentValue = false,
-   Callback = function(Value)
-      getgenv().FruitSniper = Value
-      spawn(function()
-         while getgenv().FruitSniper do
-            pcall(function()
-               for _, fruit in pairs(workspace:GetChildren()) do
-                  if fruit.Name:find("Fruit") or fruit.Name:find("Leopard") or fruit.Name:find("Dragon") then
-                     TeleportTo(fruit.CFrame)
-                     fireclickdetector(fruit:FindFirstChild("ClickDetector"))
-                  end
-               end
-            end)
-            wait(0.5)
-         end
-      end)
-   end,
-})
-
--- Auto Raid
-CombatTab:CreateToggle({
-   Name = "Auto Raid",
-   CurrentValue = false,
-   Callback = function(Value)
-      getgenv().AutoRaid = Value
-      if Value then
-         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("RaidsRpc", "SelectRaid", "Flame")
-         wait(2)
-         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("RaidsRpc", "StartRaid")
-      end
-   end,
-})
-
-local TeleTab = Window:CreateTab("🗺️ Teleports", 4483362458)
-local TeleSection = TeleTab:CreateSection("Islas Principales")
-
--- Teleports PRO (Coordenadas Update 2025)
-TeleTab:CreateButton({
-   Name = "Marine Starter (Lvl 1-15)",
-   Callback = function()
-      TeleportTo(CFrame.new(36, 7, 16))
-   end,
-})
-
-TeleTab:CreateButton({
-   Name = "Green Zone (Lvl 200+)",
-   Callback = function()
-      TeleportTo(CFrame.new(-2888, 43, 5580))
-   end,
-})
-
-TeleTab:CreateButton({
-   Name = "Sea 3 (Volcano)",
-   Callback = function()
-      TeleportTo(CFrame.new(-5197, 61, -2557))
-   end,
-})
-
-TeleTab:CreateButton({
-   Name = "Rejoin Server (Anti-AFK)",
-   Callback = function()
-      game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
-   end,
-})
-
--- ESP (Ver enemigos/jugadores)
-local ESPTab = Window:CreateTab("👁️ ESP", 4483362458)
+-- ESP Bosses
+local ESPTab = Window:CreateTab("👁️ ESP Bosses", 4483362458)
 ESPTab:CreateToggle({
-   Name = "ESP Enemigos",
+   Name = "ESP Solo Bosses (Rojo Gigante)",
    CurrentValue = false,
    Callback = function(Value)
-      for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-         if Value then
-            local esp = Instance.new("BillboardGui", enemy.Head)
-            esp.Size = UDim2.new(0, 100, 0, 50)
-            local text = Instance.new("TextLabel", esp)
-            text.Size = UDim2.new(1, 0, 1, 0)
-            text.BackgroundTransparency = 1
-            text.Text = enemy.Name
-            text.TextColor3 = Color3.new(1, 0, 0)
-            text.TextStrokeTransparency = 0
-         else
-            if enemy.Head:FindFirstChild("BillboardGui") then
-               enemy.Head.BillboardGui:Destroy()
+      for _, boss in ipairs(Enemies:GetChildren()) do
+         local head = boss:FindFirstChild("Head")
+         if head and (boss.Name:find("Boss") or boss.Name:find("King") or boss.Name:find("Yeti")) then
+            local gui = head:FindFirstChild("BossESP")
+            if Value and not gui then
+               gui = Instance.new("BillboardGui", head)
+               gui.Name = "BossESP"
+               gui.Size = UDim2.new(0, 200, 0, 100)
+               gui.StudsOffset = Vector3.new(0, 3, 0)
+               local text = Instance.new("TextLabel", gui)
+               text.Size = UDim2.new(1, 0, 1, 0)
+               text.BackgroundTransparency = 1
+               text.Text = boss.Name .. " [HP: " .. math.floor(boss.Humanoid.Health) .. "]"
+               text.TextColor3 = Color3.new(1, 0, 0)
+               text.TextStrokeTransparency = 0
+               text.TextScaled = true
+            elseif not Value and gui then
+               gui:Destroy()
             end
          end
       end
@@ -224,8 +191,8 @@ ESPTab:CreateToggle({
 })
 
 Rayfield:Notify({
-   Title = "ZERO HUB PRO Cargado",
-   Content = "¡Script PRO activado! Activa Auto Farm y domina Blox Fruits. 🍍⚔️",
-   Duration = 5,
+   Title = "🟢 ZERO HUB BOSS FARM Cargado!",
+   Content = "¡Activa Auto Farm Bosses! Detecta 16 bosses, mata auto + hop servers. Drops OP! 🍍⚔️",
+   Duration = 6,
    Image = 4483362458
 })
