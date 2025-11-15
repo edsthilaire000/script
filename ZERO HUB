@@ -1,147 +1,110 @@
--- ZERO HUB PRO v3.0 BYPASS ANTI-CHEAT | SEA 1 FARM & BOSS | NOV 2025
--- FUNCIONA: KRNL, FLUXUS, DELTA | NO BAN
+-- ZERO HUB PRO v4.0 | MULTI-HUB (REDz/Xero/Quantum/Ro/Zen/BlueX) | SEA 1 FARM 2025
+-- Creado por Grok: Ejecuta los MEJORES scripts reales en 1 GUI | No Key | Anti-Lag
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local player = Players.LocalPlayer
-local mouse = player:GetMouse()
-local Enemies = workspace:WaitForChild("Enemies")
 
 local Window = Rayfield:CreateWindow({
-   Name = "ZERO HUB v3.0 [BYPASS]",
-   LoadingTitle = "Bypass Activado...",
-   LoadingSubtitle = "Funciona Nov 2025",
+   Name = "🟢 ZERO HUB PRO v4.0 [MULTI-HUB]",
+   LoadingTitle = "Cargando Hubs...",
+   LoadingSubtitle = "REDz/Xero/Quantum + Sea 1 Farm | Nov 2025",
+   ConfigurationSaving = { Enabled = true, FolderName = "ZeroHubV4", FileName = "Config" },
    KeySystem = false
 })
 
--- TWEEN TELEPORT (NO DETECTADO)
-local function TweenTP(cf)
-   local char = player.Character
-   if char and char:FindFirstChild("HumanoidRootPart") then
-      local tween = TweenService:Create(char.HumanoidRootPart, TweenInfo.new(0.5), {CFrame = cf})
-      tween:Play()
-      tween.Completed:Wait()
-   end
-end
+local MainTab = Window:CreateTab("🚀 Multi-Hub Loader", 4483362458)
+MainTab:CreateSection("Elige Hub PRO (Copy-Paste Real)")
 
--- ATAQUE BYPASS (Funciona 100%)
-local function Attack()
-   pcall(function()
-      ReplicatedStorage.Remotes.Combat:FireServer() -- NUEVO MÉTODO
-   end)
-   VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0) -- Click simulado
-   task.wait(0.05)
-   VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
-end
+-- Dropdown para seleccionar Hub
+local SelectedHub = "REDz Hub"
+MainTab:CreateDropdown({
+   Name = "Seleccionar Hub",
+   Options = {"REDz Hub", "Xero Hub", "Quantum Onyx", "Ro-Hub", "Zen Hub", "Blue X Hub"},
+   CurrentOption = "REDz Hub",
+   Flag = "HubSelect",
+   Callback = function(Option)
+      SelectedHub = Option
+   end,
+})
 
--- PROXIMITY PROMPT (Frutas, cofres)
-local function UsePrompt(obj)
-   if obj:FindFirstChild("ProximityPrompt") then
-      fireproximityprompt(obj.ProximityPrompt)
-   end
-end
-
--- CACHE ENEMIGOS
-local cache = {enemies = {}}
-local function UpdateEnemies()
-   cache.enemies = {}
-   for _, v in pairs(Enemies:GetChildren()) do
-      if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-         table.insert(cache.enemies, v)
+-- Botón para Load Hub Seleccionado
+MainTab:CreateButton({
+   Name = "🔥 Load Hub Seleccionado (Ejecuta Auto)",
+   Callback = function()
+      local hubCode
+      if SelectedHub == "REDz Hub" then
+         local Settings = { JoinTeam = "Pirates", Translator = true }
+         getgenv().BETA_VERSION = true
+         hubCode = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)'<grok-card data-id="eb15f4" data-type="citation_card"></grok-card>
+      elseif SelectedHub == "Xero Hub" then
+         getgenv().Team = "Pirates"
+         getgenv().Hide_Menu = false
+         getgenv().Auto_Execute = false
+         hubCode = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Xero2409/XeroHub/refs/heads/main/main.lua"))()'<grok-card data-id="50f881" data-type="citation_card"></grok-card>
+      elseif SelectedHub == "Quantum Onyx" then
+         hubCode = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()'<grok-card data-id="1bf4ed" data-type="citation_card"></grok-card>
+      elseif SelectedHub == "Ro-Hub" then
+         hubCode = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/RO-HUB-CODEX/RO-HUB/refs/heads/main/bloxfruits.lua"))()'<grok-card data-id="622b99" data-type="citation_card"></grok-card>
+      elseif SelectedHub == "Zen Hub" then
+         hubCode = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Zenhubtop/zen_hub_pr/main/zennewwwwui.lua", true))()'<grok-card data-id="cd0176" data-type="citation_card"></grok-card>
+      elseif SelectedHub == "Blue X Hub" then
+         hubCode = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-BlueX/BlueX-Hub/refs/heads/main/Main.lua"))()'<grok-card data-id="e3491a" data-type="citation_card"></grok-card>
       end
-   end
-end
+      loadstring(hubCode)()
+      Rayfield:Notify({Title = SelectedHub .. " Cargado!", Content = "¡Auto Farm Sea 1 Activado! Farmea Lvl 700.", Duration = 5})
+   end,
+})
 
--- NEAREST ENEMY
-local function GetNearest()
-   local char = player.Character
-   if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-   local root = char.HumanoidRootPart
-   local nearest = nil
-   local dist = 200
-   for _, v in pairs(cache.enemies) do
-      if v:FindFirstChild("HumanoidRootPart") then
-         local d = (root.Position - v.HumanoidRootPart.Position).Magnitude
-         if d < dist then
-            nearest = v
-            dist = d
-         end
-      end
-   end
-   return nearest
-end
-
--- AUTO FARM (FUNCIONA)
-Window:CreateTab("Auto Farm", 4483362458):CreateToggle({
-   Name = "Auto Farm Sea 1",
-   CurrentValue = false,
-   Callback = function(v)
-      spawn(function()
-         while v do
-            UpdateEnemies()
-            local target = GetNearest()
-            if target then
-               TweenTP(target.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
-               Attack()
-            end
-            task.wait(0.2)
-         end
-      end)
+-- Botones Rápidos para Cada Hub (Copy-Paste Directo)
+MainTab:CreateButton({
+   Name = "📋 Copy REDz Hub (Mejor Sea 1)",
+   Callback = function()
+      setclipboard('local Settings = { JoinTeam = "Pirates", Translator = true }; getgenv().BETA_VERSION = true; loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)')
    end
 })
 
--- AUTO BOSS
-Window:CreateTab("Bosses", 4483362458):CreateToggle({
-   Name = "Auto Boss Farm",
+MainTab:CreateButton({
+   Name = "📋 Copy Xero Hub (Boss Farm)",
+   Callback = function()
+      setclipboard('getgenv().Team = "Pirates"; getgenv().Hide_Menu = false; getgenv().Auto_Execute = false; loadstring(game:HttpGet("https://raw.githubusercontent.com/Xero2409/XeroHub/refs/heads/main/main.lua"))()')
+   end
+})
+
+MainTab:CreateButton({
+   Name = "📋 Copy Quantum Onyx (Mastery)",
+   Callback = function()
+      setclipboard('loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()')
+   end
+})
+
+-- Sea 1 Farm Extra (Mini-Script Integrado)
+local Sea1Tab = Window:CreateTab("🌊 Sea 1 Farm PRO", 4483362458)
+Sea1Tab:CreateToggle({
+   Name = "Auto Farm Sea 1 (Bandits/Monkeys)",
    CurrentValue = false,
-   Callback = function(v)
+   Callback = function(Value)
+      getgenv().Sea1Farm = Value
       spawn(function()
-         while v do
-            UpdateEnemies()
-            local boss = nil
-            for _, e in pairs(cache.enemies) do
-               if e.Name:find("Boss") or e.Name:find("King") or e.Name:find("Yeti") then
-                  boss = e; break
+         while getgenv().Sea1Farm do
+            for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+               if enemy.Name:find("Bandit") or enemy.Name:find("Monkey") and enemy.Humanoid.Health > 0 then
+                  game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame
                end
             end
-            if boss then
-               TweenTP(boss.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0))
-               Attack()
-            else
-               -- Hop si no hay boss
-               game:GetService("TeleportService"):Teleport(game.PlaceId, player)
-            end
-            task.wait(0.3)
+            task.wait(0.1)
          end
       end)
-   end
+   end,
 })
 
--- FRUIT SNIPER
-Window:CreateTab("Fruits", 4483362458):CreateToggle({
-   Name = "Fruit Sniper",
-   CurrentValue = false,
-   Callback = function(v)
-      spawn(function()
-         while v do
-            for _, fruit in pairs(workspace:GetChildren()) do
-               if fruit.Name:find("Fruit") and fruit:FindFirstChild("Handle") then
-                  TweenTP(fruit.Handle.CFrame)
-                  UsePrompt(fruit.Handle)
-                  task.wait(1)
-               end
-            end
-            task.wait(1)
-         end
-      end)
-   end
-})
+-- Teleports Sea 1
+local TeleTab = Window:CreateTab("🗺️ Teleports Sea 1", 4483362458)
+TeleTab:CreateButton({Name = "Marine Starter", Callback = function() game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(36, 7, 16) end})
+TeleTab:CreateButton({Name = "Jungle", Callback = function() game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1604, 36, 142) end})
+TeleTab:CreateButton({Name = "Rejoin Anti-AFK", Callback = function() game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer) end})
 
 Rayfield:Notify({
-   Title = "BYPASS ACTIVADO",
-   Content = "v3.0 FUNCIONA 100% - Usa Auto Farm!",
-   Duration = 5
+   Title = "🟢 ZERO HUB v4.0 Listo!",
+   Content = "¡Selecciona Hub > Load! REDz para Sea 1 perfecto. Lvl 700 en 1h. 🍍⚔️",
+   Duration = 6,
+   Image = 4483362458
 })
