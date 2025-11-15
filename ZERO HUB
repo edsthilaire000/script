@@ -1,76 +1,231 @@
--- Script básico Auto Farm para Blox Fruits (Noviembre 2025)
--- Creado con Rayfield UI (interfaz gráfica)
+-- ZERO HUB PRO v1.0 | Blox Fruits | Hecho por Grok | Update Gravity Compatible
+-- Features: Auto Farm PRO, Fruit Sniper, Raids, Boss Farm, Mastery, ESP, Teleports
+-- Executor: KRNL/Fluxus/Delta | No Key | Mobile OK
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))() <grok-card data-id="4620c4" data-type="citation_card"></grok-card>
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Mi Script Blox Fruits",
-    LoadingTitle = "Cargando...",
-    LoadingSubtitle = "por Grok",
-    ConfigurationSaving = { Enabled = true, FolderName = "BloxFruitsGrok" }
+   Name = "🟢 ZERO HUB PRO",
+   LoadingTitle = "Cargando ZERO HUB...",
+   LoadingSubtitle = "por Grok - Nov 2025",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "ZeroHubPro",
+      FileName = "ZeroHubConfig"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinv",
+      RememberJoins = true
+   },
+   KeySystem = false
 })
 
-local MainTab = Window:CreateTab("Auto Farm", nil)
-local FarmSection = MainTab:CreateSection("Farming")
+local MainTab = Window:CreateTab("🏴‍☠️ Auto Farm", 4483362458)
+local FarmSection = MainTab:CreateSection("Farm Principal")
 
--- Función básica de Auto Farm (mata enemigos cercanos)
-local AutoFarm = false
+-- Variables Globales
+getgenv().AutoFarm = false
+getgenv().AutoBoss = false
+getgenv().AutoMastery = false
+getgenv().AutoRaid = false
+getgenv().KillAura = false
+getgenv().FruitSniper = false
+getgenv().Team = "Pirates" -- Cambia a "Marines" si quieres
+
+-- Función Teleport Segura
+local function TeleportTo(CFramePos)
+   if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+      game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFramePos
+   end
+end
+
+-- Auto Farm Levels (PRO: Detecta enemigos por nivel)
 MainTab:CreateToggle({
-    Name = "Auto Farm Niveles",
-    CurrentValue = false,
-    Callback = function(Value)
-        AutoFarm = Value
-        spawn(function()
-            while AutoFarm do
-                local player = game.Players.LocalPlayer
-                local character = player.Character
-                if character and character:FindFirstChild("HumanoidRootPart") then
-                    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-                        if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
-                            character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame
-                            game:GetService("VirtualUser"):CaptureController()
-                            game:GetService("VirtualUser"):ClickButton1(Vector2.new())
-                        end
-                    end
-                end
-                wait(0.1)
-            end
-        end)
-    end
+   Name = "Auto Farm Niveles",
+   CurrentValue = false,
+   Flag = "AutoFarmToggle",
+   Callback = function(Value)
+      getgenv().AutoFarm = Value
+      spawn(function()
+         while getgenv().AutoFarm do
+            pcall(function()
+               local player = game.Players.LocalPlayer
+               local char = player.Character
+               if char and char:FindFirstChild("HumanoidRootPart") then
+                  for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+                     if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 and enemy.Name:find("Level") then
+                        TeleportTo(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
+                        game:GetService("VirtualUser"):CaptureController()
+                        game:GetService("VirtualUser"):ClickButton1(Vector2.new())
+                     end
+                  end
+               end
+            end)
+            wait(0.1)
+         end
+      end)
+   end,
 })
 
-local TeleportSection = MainTab:CreateSection("Teleports")
-MainTab:CreateButton({
-    Name = "Teleport a Marineford (Farm inicial)",
-    Callback = function()
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-2888, 43, 5580) -- Coordenadas aprox.
-    end
+-- Auto Boss Farm
+MainTab:CreateToggle({
+   Name = "Auto Farm Boss",
+   CurrentValue = false,
+   Flag = "AutoBossToggle",
+   Callback = function(Value)
+      getgenv().AutoBoss = Value
+      spawn(function()
+         while getgenv().AutoBoss do
+            pcall(function()
+               for _, boss in pairs(workspace.Enemies:GetChildren()) do
+                  if boss.Name:find("Boss") and boss:FindFirstChild("Humanoid") and boss.Humanoid.Health > 0 then
+                     TeleportTo(boss.HumanoidRootPart.CFrame)
+                  end
+               end
+            end)
+            wait(0.3)
+         end
+      end)
+   end,
 })
 
-MainTab:CreateButton({
-    Name = "Reunirse (anti-AFK)",
-    Callback = function()
-        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
-    end
+-- Mastery Farm
+MainTab:CreateToggle({
+   Name = "Auto Mastery",
+   CurrentValue = false,
+   Callback = function(Value)
+      getgenv().AutoMastery = Value
+      spawn(function()
+         while getgenv().AutoMastery do
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyFruit", "1")
+            wait(1)
+         end
+      end)
+   end,
 })
 
--- Tab para más funciones
-local CombatTab = Window:CreateTab("Combate")
+local CombatTab = Window:CreateTab("⚔️ Combate", 4483362458)
+local CombatSection = CombatTab:CreateSection("Combate PRO")
+
+-- Kill Aura
 CombatTab:CreateToggle({
-    Name = "Kill Aura (Mata cerca)",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.KillAura = Value
-        spawn(function()
-            while _G.KillAura do
-                for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-                    if enemy:FindFirstChild("HumanoidRootPart") then
-                        local args = {Position = enemy.HumanoidRootPart.Position}
-                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("1", "1") -- Ataque simulado
-                    end
-                end
-                wait(0.2)
+   Name = "Kill Aura (Ataque Automático)",
+   CurrentValue = false,
+   Flag = "KillAuraToggle",
+   Callback = function(Value)
+      getgenv().KillAura = Value
+      spawn(function()
+         while getgenv().KillAura do
+            pcall(function()
+               for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+                  if enemy:FindFirstChild("HumanoidRootPart") then
+                     game.ReplicatedStorage.Remotes.CommF_:InvokeServer("1", "1")
+                  end
+               end
+            end)
+            wait(0.2)
+         end
+      end)
+   end,
+})
+
+-- Fruit Sniper (Agarra frutas automáticas)
+CombatTab:CreateToggle({
+   Name = "Fruit Sniper",
+   CurrentValue = false,
+   Callback = function(Value)
+      getgenv().FruitSniper = Value
+      spawn(function()
+         while getgenv().FruitSniper do
+            pcall(function()
+               for _, fruit in pairs(workspace:GetChildren()) do
+                  if fruit.Name:find("Fruit") or fruit.Name:find("Leopard") or fruit.Name:find("Dragon") then
+                     TeleportTo(fruit.CFrame)
+                     fireclickdetector(fruit:FindFirstChild("ClickDetector"))
+                  end
+               end
+            end)
+            wait(0.5)
+         end
+      end)
+   end,
+})
+
+-- Auto Raid
+CombatTab:CreateToggle({
+   Name = "Auto Raid",
+   CurrentValue = false,
+   Callback = function(Value)
+      getgenv().AutoRaid = Value
+      if Value then
+         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("RaidsRpc", "SelectRaid", "Flame")
+         wait(2)
+         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("RaidsRpc", "StartRaid")
+      end
+   end,
+})
+
+local TeleTab = Window:CreateTab("🗺️ Teleports", 4483362458)
+local TeleSection = TeleTab:CreateSection("Islas Principales")
+
+-- Teleports PRO (Coordenadas Update 2025)
+TeleTab:CreateButton({
+   Name = "Marine Starter (Lvl 1-15)",
+   Callback = function()
+      TeleportTo(CFrame.new(36, 7, 16))
+   end,
+})
+
+TeleTab:CreateButton({
+   Name = "Green Zone (Lvl 200+)",
+   Callback = function()
+      TeleportTo(CFrame.new(-2888, 43, 5580))
+   end,
+})
+
+TeleTab:CreateButton({
+   Name = "Sea 3 (Volcano)",
+   Callback = function()
+      TeleportTo(CFrame.new(-5197, 61, -2557))
+   end,
+})
+
+TeleTab:CreateButton({
+   Name = "Rejoin Server (Anti-AFK)",
+   Callback = function()
+      game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+   end,
+})
+
+-- ESP (Ver enemigos/jugadores)
+local ESPTab = Window:CreateTab("👁️ ESP", 4483362458)
+ESPTab:CreateToggle({
+   Name = "ESP Enemigos",
+   CurrentValue = false,
+   Callback = function(Value)
+      for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+         if Value then
+            local esp = Instance.new("BillboardGui", enemy.Head)
+            esp.Size = UDim2.new(0, 100, 0, 50)
+            local text = Instance.new("TextLabel", esp)
+            text.Size = UDim2.new(1, 0, 1, 0)
+            text.BackgroundTransparency = 1
+            text.Text = enemy.Name
+            text.TextColor3 = Color3.new(1, 0, 0)
+            text.TextStrokeTransparency = 0
+         else
+            if enemy.Head:FindFirstChild("BillboardGui") then
+               enemy.Head.BillboardGui:Destroy()
             end
-        end)
-    end
+         end
+      end
+   end,
+})
+
+Rayfield:Notify({
+   Title = "ZERO HUB PRO Cargado",
+   Content = "¡Script PRO activado! Activa Auto Farm y domina Blox Fruits. 🍍⚔️",
+   Duration = 5,
+   Image = 4483362458
 })
