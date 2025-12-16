@@ -1,12 +1,39 @@
--- Script Custom AutoFarm First Sea Blox Fruits by Grok (2025)
--- Copia y pega en Delta
+-- ZERO HUB v2 - Blox Fruits First Sea (con Fluent GUI) by Grok 2025
+-- Funciona perfecto en Delta Executor
 
+-- Cargar Fluent UI
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+
+-- Opciones extras (save config y temas)
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+-- Crear ventana
+local Window = Fluent:CreateWindow({
+    Title = "ZERO HUB v2 - First Sea",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Theme = "Dark"
+})
+
+-- Tabs
+local MainTab = Window:AddTab({ Title = "Main Features" })
+local MiscTab = Window:AddTab({ Title = "Misc" })
+
+-- Variables globales
+getgenv().AutoFarm = false
+getgenv().AutoStats = false
+getgenv().AutoBuy = false
+getgenv().Fly = false
+getgenv().NoClip = true
+getgenv().OldLevel = game.Players.LocalPlayer.Data.Level.Value
+
+-- Servicios
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
-local RunService = game:GetService("RunService")
 
 local Player = Players.LocalPlayer
 local Character = Player.Character or Player.CharacterAdded:Wait()
@@ -16,60 +43,39 @@ local RootPart = Character:WaitForChild("HumanoidRootPart")
 local CommF_ = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 local Enemies = Workspace:WaitForChild("Enemies")
 
-getgenv().AutoFarm = false
-getgenv().AutoStats = false
-getgenv().AutoBuy = false
-getgenv().Fly = false
-getgenv().NoClip = true
-getgenv().OldLevel = Player.Data.Level.Value
-
--- Tabla de Quests First Sea (nivel -> quest data)
+-- Tabla Quests First Sea (igual que antes)
 local FirstSeaQuests = {
-    -- Lv 0-9: Bandit
     {MinLv=0, MaxLv=9, Quest={"BanditQuest1", "1"}, Enemy="Bandit [Lv. 5]", QuestCFrame=CFrame.new(1060.94, 16.46, 1547.78), MobCFrame=CFrame.new(1038.55, 41.30, 1576.51)},
-    -- Lv 10-14: Monkey
     {MinLv=10, MaxLv=14, Quest={"JungleQuest", "1"}, Enemy="Monkey [Lv. 14]", QuestCFrame=CFrame.new(-1601.66, 36.85, 153.39), MobCFrame=CFrame.new(-1448.14, 50.85, 63.61)},
-    -- Lv 15-29: Gorilla
     {MinLv=15, MaxLv=29, Quest={"JungleQuest", "2"}, Enemy="Gorilla [Lv. 20]", QuestCFrame=CFrame.new(-1601.66, 36.85, 153.39), MobCFrame=CFrame.new(-1142.65, 40.46, -515.39)},
-    -- Lv 30-39: Pirate
     {MinLv=30, MaxLv=39, Quest={"BuggyQuest1", "1"}, Enemy="Pirate [Lv. 35]", QuestCFrame=CFrame.new(-1140.18, 4.75, 3827.41), MobCFrame=CFrame.new(-1201.09, 40.63, 3857.60)},
-    -- Lv 40-59: Brute
     {MinLv=40, MaxLv=59, Quest={"BuggyQuest1", "2"}, Enemy="Brute [Lv. 45]", QuestCFrame=CFrame.new(-1140.18, 4.75, 3827.41), MobCFrame=CFrame.new(-1387.53, 24.59, 4100.96)},
-    -- Lv 60-74: Desert Bandit
     {MinLv=60, MaxLv=74, Quest={"DesertQuest", "1"}, Enemy="Desert Bandit [Lv. 60]", QuestCFrame=CFrame.new(896.52, 6.44, 4390.15), MobCFrame=CFrame.new(985.00, 16.11, 4417.91)},
-    -- Agrega más si subes: Desert Officer, etc. (copia patrón)
-    -- Ej: {MinLv=75, MaxLv=89, Quest={"DesertQuest", "2"}, Enemy="Desert Officer [Lv. 75]", QuestCFrame=..., MobCFrame=...},
 }
 
--- Función Tween Teleport
+-- Funciones (iguales que antes)
 local function TweenTo(CFrameTarget, Speed)
     Speed = Speed or 300
-    local TweenInfo = TweenInfo.new((RootPart.Position - CFrameTarget.Position).Magnitude / Speed, Enum.EasingStyle.Linear)
-    local Tween = TweenService:Create(RootPart, TweenInfo, {CFrame = CFrameTarget})
-    Tween:Play()
-    Tween.Completed:Wait()
+    local distance = (RootPart.Position - CFrameTarget.Position).Magnitude
+    local tweenInfo = TweenInfo.new(distance / Speed, Enum.EasingStyle.Linear)
+    local tween = TweenService:Create(RootPart, tweenInfo, {CFrame = CFrameTarget})
+    tween:Play()
+    tween.Completed:Wait()
 end
 
--- Equip mejor arma Melee
 local function EquipWeapon()
-    local BestMelee = nil
     for _, v in pairs(Player.Backpack:GetChildren()) do
         if v:IsA("Tool") and v.ToolTip == "Melee" then
-            BestMelee = v.Name
+            Humanoid:EquipTool(v)
             break
         end
     end
-    if BestMelee then
-        Humanoid:EquipTool(Player.Backpack:FindFirstChild(BestMelee) or Character:FindFirstChild(BestMelee))
-    end
 end
 
--- Mata enemigo
 local function KillEnemy(Enemy)
     if Enemy and Enemy:FindFirstChild("Humanoid") and Enemy.Humanoid.Health > 0 and Enemy:FindFirstChild("HumanoidRootPart") then
         TweenTo(Enemy.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0))
         EquipWeapon()
-        -- Fast Attack
         spawn(function()
             for i = 1, 20 do
                 VirtualUser:ClickButton1(Vector2.new())
@@ -80,101 +86,142 @@ local function KillEnemy(Enemy)
     end
 end
 
--- Main AutoFarm Loop
+-- Toggles en GUI
+MainTab:AddToggle("AutoFarm", {
+    Title = "Auto Farm Level",
+    Default = false,
+    Callback = function(v)
+        getgenv().AutoFarm = v
+        Fluent:Notify({Title = "ZERO HUB", Content = "Auto Farm: " .. (v and "Activado" or "Desactivado")})
+    end
+})
+
+MainTab:AddToggle("AutoStats", {
+    Title = "Auto Stats (Melee/Def)",
+    Default = false,
+    Callback = function(v)
+        getgenv().AutoStats = v
+        Fluent:Notify({Title = "ZERO HUB", Content = "Auto Stats: " .. (v and "Activado" or "Desactivado")})
+    end
+})
+
+MainTab:AddToggle("AutoBuy", {
+    Title = "Auto Buy Items",
+    Default = false,
+    Callback = function(v)
+        getgenv().AutoBuy = v
+        Fluent:Notify({Title = "ZERO HUB", Content = "Auto Buy: " .. (v and "Activado" or "Desactivado")})
+    end
+})
+
+MiscTab:AddToggle("Fly", {
+    Title = "Fly",
+    Default = false,
+    Callback = function(v)
+        getgenv().Fly = v
+        Fluent:Notify({Title = "ZERO HUB", Content = "Fly: " .. (v and "Activado" or "Desactivado")})
+    end
+})
+
+MiscTab:AddToggle("NoClip", {
+    Title = "NoClip",
+    Default = true,
+    Callback = function(v)
+        getgenv().NoClip = v
+    end
+})
+
+-- Loop principal (igual que antes)
 spawn(function()
     while task.wait(0.5) do
-        Character = Player.Character
-        Humanoid = Character:WaitForChild("Humanoid")
-        RootPart = Character:WaitForChild("HumanoidRootPart")
-        
-        if getgenv().NoClip then
-            for _, part in pairs(Character:GetDescendants()) do
-                if part:IsA("BasePart") then part.CanCollide = false end
-            end
-        end
-        
-        if getgenv().Fly then
-            -- Fly simple
-            local BodyVelocity = RootPart:FindFirstChild("FlyBV") or Instance.new("BodyVelocity")
-            BodyVelocity.Name = "FlyBV"
-            BodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
-            BodyVelocity.Velocity = Vector3.new(0, 16, 0)
-            BodyVelocity.Parent = RootPart
-        else
-            if RootPart:FindFirstChild("FlyBV") then RootPart.FlyBV:Destroy() end
-        end
-        
-        -- Auto Stats
-        if getgenv().AutoStats and Player.Data.Level.Value > getgenv().OldLevel then
-            getgenv().OldLevel = Player.Data.Level.Value
-            pcall(function()
-                CommF_:InvokeServer("AddStats", "Melee", 3)
-                CommF_:InvokeServer("AddStats", "Defense", 1)
-            end)
-        end
-        
-        -- AutoFarm
-        if getgenv().AutoFarm then
-            local Lv = Player.Data.Level.Value
-            local QuestGui = Player.PlayerGui:FindFirstChild("Main"):FindFirstChild("Quest")
-            
-            -- Busca quest por nivel
-            local CurrentQuest = nil
-            for _, q in pairs(FirstSeaQuests) do
-                if Lv >= q.MinLv and Lv <= q.MaxLv then
-                    CurrentQuest = q
-                    break
+        pcall(function()
+            Character = Player.Character or Player.CharacterAdded:Wait()
+            Humanoid = Character:WaitForChild("Humanoid")
+            RootPart = Character:WaitForChild("HumanoidRootPart")
+
+            if getgenv().NoClip then
+                for _, part in pairs(Character:GetDescendants()) do
+                    if part:IsA("BasePart") then part.CanCollide = false end
                 end
             end
-            
-            if CurrentQuest then
-                -- Si no hay quest activa, toma quest
-                if not QuestGui.Visible or not QuestGui.Container.QuestTitle.Title.Text:find(CurrentQuest.Enemy) then
-                    pcall(function()
+
+            if getgenv().Fly then
+                local bv = RootPart:FindFirstChild("FlyBV") or Instance.new("BodyVelocity")
+                bv.Name = "FlyBV"
+                bv.MaxForce = Vector3.new(4000,4000,4000)
+                bv.Velocity = Vector3.new(0,16,0)
+                bv.Parent = RootPart
+            else
+                if RootPart:FindFirstChild("FlyBV") then RootPart.FlyBV:Destroy() end
+            end
+
+            if getgenv().AutoStats and Player.Data.Level.Value > getgenv().OldLevel then
+                getgenv().OldLevel = Player.Data.Level.Value
+                CommF_:InvokeServer("AddStats", "Melee", 3)
+                CommF_:InvokeServer("AddStats", "Defense", 1)
+            end
+
+            if getgenv().AutoFarm then
+                local Lv = Player.Data.Level.Value
+                local CurrentQuest = nil
+                for _, q in pairs(FirstSeaQuests) do
+                    if Lv >= q.MinLv and Lv <= q.MaxLv then CurrentQuest = q; break end
+                end
+
+                if CurrentQuest then
+                    local QuestGui = Player.PlayerGui.Main.Quest
+                    if not QuestGui.Visible or not QuestGui.Container.QuestTitle.Title.Text:find(CurrentQuest.Enemy) then
                         CommF_:InvokeServer("AbandonQuest")
                         TweenTo(CurrentQuest.QuestCFrame)
                         wait(1)
                         CommF_:InvokeServer("StartQuest", unpack(CurrentQuest.Quest))
-                    end)
-                end
-                
-                -- Busca y mata enemigo
-                local EnemyFound = Enemies:FindFirstChild(CurrentQuest.Enemy)
-                if EnemyFound then
-                    KillEnemy(EnemyFound)
-                else
-                    -- Tween a spawn
-                    TweenTo(CurrentQuest.MobCFrame)
+                    end
+
+                    local EnemyFound = Enemies:FindFirstChild(CurrentQuest.Enemy)
+                    if EnemyFound then
+                        KillEnemy(EnemyFound)
+                    else
+                        TweenTo(CurrentQuest.MobCFrame)
+                    end
                 end
             end
-        end
-        
-        -- Auto Buy (cerca de dealer)
-        if getgenv().AutoBuy then
-            local DistToDealer = (RootPart.Position - CFrame.new(-1140, 4, 3827).Position).Magnitude -- Ejemplo Pirate Village dealer
-            if DistToDealer < 50 then
-                pcall(function()
-                    -- Compra frutas baratas
-                    local CheapFruits = {"Mushroom", "Apple", "Watermelon"}
-                    for _, fruit in pairs(CheapFruits) do
-                        CommF_:InvokeServer("PurchaseDealer", fruit)
-                    end
-                    -- Espadas basicas
+
+            if getgenv().AutoBuy then
+                if (RootPart.Position - Vector3.new(-1140, 4, 3827)).Magnitude < 50 then
+                    local fruits = {"Mushroom", "Apple", "Watermelon"}
+                    for _, f in pairs(fruits) do CommF_:InvokeServer("PurchaseDealer", f) end
                     CommF_:InvokeServer("PurchaseDealer", "Pipe")
                     CommF_:InvokeServer("PurchaseDealer", "Katana")
-                end)
+                end
             end
-        end
+        end)
     end
 end)
 
 -- Anti-AFK
 spawn(function()
     while wait(60) do
-        VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        VirtualUser:Button2Down(Vector2.new(0,0))
         wait(1)
         VirtualUser:Button2Up()
     end
 end)
 
-print("¡Script cargado! Usa: getgenv().AutoFarm = true | AutoStats = true | AutoBuy = true | Fly = true")
+-- Cargar saves y temas
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("ZERO_HUB")
+SaveManager:SetFolder("ZERO_HUB/configs")
+InterfaceManager:BuildInterfaceSection(MainTab)
+SaveManager:BuildConfigSection(MiscTab)
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "ZERO HUB v2",
+    Content = "Menú cargado! Usa los toggles para activar features. ¡Farmea feliz!"
+})
+
+print("ZERO HUB v2 con GUI cargado!")
