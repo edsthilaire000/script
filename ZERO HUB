@@ -1,39 +1,12 @@
--- ZERO HUB v2 - Blox Fruits First Sea (con Fluent GUI) by Grok 2025
--- Funciona perfecto en Delta Executor
+-- ZERO HUB v2.1 - Blox Fruits First Sea (Teclas simples, sin GUI rota) by Grok 2025
+-- Funciona perfecto en Delta - Diciembre 2025
 
--- Cargar Fluent UI
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-
--- Opciones extras (save config y temas)
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
--- Crear ventana
-local Window = Fluent:CreateWindow({
-    Title = "ZERO HUB v2 - First Sea",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Theme = "Dark"
-})
-
--- Tabs
-local MainTab = Window:AddTab({ Title = "Main Features" })
-local MiscTab = Window:AddTab({ Title = "Misc" })
-
--- Variables globales
-getgenv().AutoFarm = false
-getgenv().AutoStats = false
-getgenv().AutoBuy = false
-getgenv().Fly = false
-getgenv().NoClip = true
-getgenv().OldLevel = game.Players.LocalPlayer.Data.Level.Value
-
--- Servicios
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
+local UserInputService = game:GetService("UserInputService")
 
 local Player = Players.LocalPlayer
 local Character = Player.Character or Player.CharacterAdded:Wait()
@@ -43,7 +16,14 @@ local RootPart = Character:WaitForChild("HumanoidRootPart")
 local CommF_ = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 local Enemies = Workspace:WaitForChild("Enemies")
 
--- Tabla Quests First Sea (igual que antes)
+getgenv().AutoFarm = false
+getgenv().AutoStats = false
+getgenv().AutoBuy = false
+getgenv().Fly = false
+getgenv().NoClip = true
+getgenv().OldLevel = Player.Data.Level.Value
+
+-- Tabla Quests First Sea
 local FirstSeaQuests = {
     {MinLv=0, MaxLv=9, Quest={"BanditQuest1", "1"}, Enemy="Bandit [Lv. 5]", QuestCFrame=CFrame.new(1060.94, 16.46, 1547.78), MobCFrame=CFrame.new(1038.55, 41.30, 1576.51)},
     {MinLv=10, MaxLv=14, Quest={"JungleQuest", "1"}, Enemy="Monkey [Lv. 14]", QuestCFrame=CFrame.new(-1601.66, 36.85, 153.39), MobCFrame=CFrame.new(-1448.14, 50.85, 63.61)},
@@ -53,11 +33,13 @@ local FirstSeaQuests = {
     {MinLv=60, MaxLv=74, Quest={"DesertQuest", "1"}, Enemy="Desert Bandit [Lv. 60]", QuestCFrame=CFrame.new(896.52, 6.44, 4390.15), MobCFrame=CFrame.new(985.00, 16.11, 4417.91)},
 }
 
--- Funciones (iguales que antes)
+local function Notify(text)
+    game.StarterGui:SetCore("SendNotification", {Title = "ZERO HUB", Text = text, Duration = 3})
+end
+
 local function TweenTo(CFrameTarget, Speed)
     Speed = Speed or 300
-    local distance = (RootPart.Position - CFrameTarget.Position).Magnitude
-    local tweenInfo = TweenInfo.new(distance / Speed, Enum.EasingStyle.Linear)
+    local tweenInfo = TweenInfo.new((RootPart.Position - CFrameTarget.Position).Magnitude / Speed, Enum.EasingStyle.Linear)
     local tween = TweenService:Create(RootPart, tweenInfo, {CFrame = CFrameTarget})
     tween:Play()
     tween.Completed:Wait()
@@ -86,54 +68,29 @@ local function KillEnemy(Enemy)
     end
 end
 
--- Toggles en GUI
-MainTab:AddToggle("AutoFarm", {
-    Title = "Auto Farm Level",
-    Default = false,
-    Callback = function(v)
-        getgenv().AutoFarm = v
-        Fluent:Notify({Title = "ZERO HUB", Content = "Auto Farm: " .. (v and "Activado" or "Desactivado")})
+-- Teclas
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.F then
+        getgenv().AutoFarm = not getgenv().AutoFarm
+        Notify("Auto Farm: " .. (getgenv().AutoFarm and "ON" or "OFF"))
+    elseif input.KeyCode == Enum.KeyCode.G then
+        getgenv().AutoStats = not getgenv().AutoStats
+        Notify("Auto Stats: " .. (getgenv().AutoStats and "ON" or "OFF"))
+    elseif input.KeyCode == Enum.KeyCode.H then
+        getgenv().AutoBuy = not getgenv().AutoBuy
+        Notify("Auto Buy: " .. (getgenv().AutoBuy and "ON" or "OFF"))
+    elseif input.KeyCode == Enum.KeyCode.J then
+        getgenv().Fly = not getgenv().Fly
+        Notify("Fly: " .. (getgenv().Fly and "ON" or "OFF"))
+    elseif input.KeyCode == Enum.KeyCode.K then
+        getgenv().NoClip = not getgenv().NoClip
+        Notify("NoClip: " .. (getgenv().NoClip and "ON" or "OFF"))
     end
-})
+end)
 
-MainTab:AddToggle("AutoStats", {
-    Title = "Auto Stats (Melee/Def)",
-    Default = false,
-    Callback = function(v)
-        getgenv().AutoStats = v
-        Fluent:Notify({Title = "ZERO HUB", Content = "Auto Stats: " .. (v and "Activado" or "Desactivado")})
-    end
-})
-
-MainTab:AddToggle("AutoBuy", {
-    Title = "Auto Buy Items",
-    Default = false,
-    Callback = function(v)
-        getgenv().AutoBuy = v
-        Fluent:Notify({Title = "ZERO HUB", Content = "Auto Buy: " .. (v and "Activado" or "Desactivado")})
-    end
-})
-
-MiscTab:AddToggle("Fly", {
-    Title = "Fly",
-    Default = false,
-    Callback = function(v)
-        getgenv().Fly = v
-        Fluent:Notify({Title = "ZERO HUB", Content = "Fly: " .. (v and "Activado" or "Desactivado")})
-    end
-})
-
-MiscTab:AddToggle("NoClip", {
-    Title = "NoClip",
-    Default = true,
-    Callback = function(v)
-        getgenv().NoClip = v
-    end
-})
-
--- Loop principal (igual que antes)
+-- Loop principal
 spawn(function()
-    while task.wait(0.5) do
+    while wait(0.5) do
         pcall(function()
             Character = Player.Character or Player.CharacterAdded:Wait()
             Humanoid = Character:WaitForChild("Humanoid")
@@ -146,7 +103,7 @@ spawn(function()
             end
 
             if getgenv().Fly then
-                local bv = RootPart:FindFirstChild("FlyBV") or Instance.new("BodyVelocity")
+                local bv = Instance.new("BodyVelocity")
                 bv.Name = "FlyBV"
                 bv.MaxForce = Vector3.new(4000,4000,4000)
                 bv.Velocity = Vector3.new(0,16,0)
@@ -200,28 +157,8 @@ end)
 
 -- Anti-AFK
 spawn(function()
-    while wait(60) do
-        VirtualUser:Button2Down(Vector2.new(0,0))
-        wait(1)
-        VirtualUser:Button2Up()
-    end
+    while wait(60) do VirtualUser:Button2Down(Vector2.new(0,0)) wait(1) VirtualUser:Button2Up() end
 end)
 
--- Cargar saves y temas
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("ZERO_HUB")
-SaveManager:SetFolder("ZERO_HUB/configs")
-InterfaceManager:BuildInterfaceSection(MainTab)
-SaveManager:BuildConfigSection(MiscTab)
-
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "ZERO HUB v2",
-    Content = "Menú cargado! Usa los toggles para activar features. ¡Farmea feliz!"
-})
-
-print("ZERO HUB v2 con GUI cargado!")
+Notify("ZERO HUB v2.1 cargado! F=AutoFarm | G=Stats | H=Buy | J=Fly | K=NoClip")
+print("ZERO HUB listo - Usa teclas F G H J K")
